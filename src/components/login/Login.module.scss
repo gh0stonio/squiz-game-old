@@ -1,0 +1,17 @@
+.container {
+  display: flex;
+  justify-content: flex-end;
+  place-items: center;
+  text-align: center;
+  height: 4vh;
+  width: 100%;
+  padding: 0 0.8rem;
+}
+
+.signedIn {
+  display: flex;
+  justify-content: space-between;
+  place-items: center;
+  text-align: center;
+  width: 100%;
+}
