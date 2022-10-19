@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import type { NextPage } from 'next';
 import { match, P } from 'ts-pattern';
 
@@ -9,6 +10,7 @@ import Logo from '../../../public/logo.png';
 import styles from './Home.module.scss';
 
 const Home: NextPage = () => {
+  const router = useRouter();
   const result = useQuizzes();
 
   return (
@@ -33,6 +35,16 @@ const Home: NextPage = () => {
             {unfinishedQuizzes.map((quiz) => (
               <div key={quiz.id} className={styles.quizCard}>
                 {quiz.id}
+                <button
+                  onClick={() =>
+                    router.push({
+                      pathname: '/quiz/[id]/lobby',
+                      query: { id: quiz.id },
+                    })
+                  }
+                >
+                  join
+                </button>
               </div>
             ))}
           </div>

@@ -2,7 +2,7 @@ import { PropsWithChildren } from 'react';
 
 import { Login } from '~/components/login/Login';
 
-import styles from './Base.module.scss';
+import styles from './BaseLayout.module.scss';
 
 export const BaseLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
