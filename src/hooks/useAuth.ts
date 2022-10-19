@@ -8,8 +8,10 @@ import React from 'react';
 
 import { auth } from '~/lib/firebase';
 
+const authKey = 'firebase_user';
+
 export const useAuth = () => {
-  const user = useAuthUser(['firebase_user'], auth);
+  const user = useAuthUser([authKey], auth);
   const signOutMutation = useAuthSignOut(auth);
   const signInMutation = useAuthSignInWithPopup(auth);
 

@@ -13,3 +13,21 @@
   padding: 1.5em;
   will-change: filter;
 }
+
+.quizzes {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+
+  .quizCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.2rem;
+    width: 10em;
+    height: 6rem;
+    border: 1px solid gray;
+    border-radius: 1rem;
+  }
+}
