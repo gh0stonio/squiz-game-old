@@ -1,7 +1,7 @@
 import '~/styles/globals.scss';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { AppProps } from 'next/app';
-import { QueryClient, QueryClientProvider } from 'react-query';
 
 import { BaseLayout } from '~/layouts/base/BaseLayout';
 import { type NextPageWithLayout } from '~/types';

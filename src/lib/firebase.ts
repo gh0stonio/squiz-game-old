@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, QueryDocumentSnapshot } from 'firebase/firestore';
+import { getFirestore, type QueryDocumentSnapshot } from 'firebase/firestore';
 
 import { Quiz } from '~/types';
 

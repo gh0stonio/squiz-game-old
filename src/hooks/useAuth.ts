@@ -1,32 +1,29 @@
 import {
-  useAuthSignInWithPopup,
-  useAuthSignOut,
-  useAuthUser,
-} from '@react-query-firebase/auth';
-import { GoogleAuthProvider } from 'firebase/auth';
+  type AuthError,
+  type User,
+  signInWithPopup,
+  signOut,
+  GoogleAuthProvider,
+} from 'firebase/auth';
 import React from 'react';
 
+import { useCreateSubscriptionQuery } from '~/lib/data-fetcher';
 import { auth } from '~/lib/firebase';
 
-const authKey = 'firebase_user';
-
 export const useAuth = () => {
-  const user = useAuthUser([authKey], auth);
-  const signOutMutation = useAuthSignOut(auth);
-  const signInMutation = useAuthSignInWithPopup(auth);
+  return useCreateSubscriptionQuery<User, AuthError>(
+    ['firebase_user'],
+    (onSuccess) => auth.onAuthStateChanged(onSuccess),
+  );
+};
 
-  const signInWithGoogle = React.useCallback(() => {
-    signInMutation.mutate({
-      provider: new GoogleAuthProvider(),
-    });
-  }, [signInMutation]);
-  const signOut = React.useCallback(() => {
-    signOutMutation.mutate();
-  }, [signOutMutation]);
+export const useAuthSignOut = () => {
+  return React.useCallback(() => signOut(auth), []);
+};
 
-  return {
-    user,
-    signInWithGoogle,
-    signOut,
-  };
+export const useAuthSignInWithPopup = () => {
+  return React.useCallback(
+    () => signInWithPopup(auth, new GoogleAuthProvider()),
+    [],
+  );
 };

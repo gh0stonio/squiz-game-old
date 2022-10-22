@@ -1,33 +1,20 @@
-import { useFirestoreQuery } from '@react-query-firebase/firestore';
-import { query, collection } from 'firebase/firestore';
-import React from 'react';
+import { query, collection, onSnapshot } from 'firebase/firestore';
 
-import { useAuth } from '~/hooks/useAuth';
+import { useCreateSubscriptionQuery } from '~/lib/data-fetcher';
 import { converters, db } from '~/lib/firebase';
+import { Quiz } from '~/types';
 
-const quizzesKey = 'firestore_quizzes';
+const queryKey = 'firestore_quizzes';
 
-export const useQuizzes = () => {
-  const { user } = useAuth();
+export const useQuizzes = ({ isDisabled }: { isDisabled?: boolean } = {}) => {
+  const q = query(collection(db, 'quizzes').withConverter(converters.quiz));
 
-  const ref = query(collection(db, 'quizzes').withConverter(converters.quiz));
-  const result = useFirestoreQuery([quizzesKey], ref, {
-    subscribe: true,
-  });
-
-  const quizzes = React.useMemo(
-    () => (result.data?.docs || []).map((docSnapshot) => docSnapshot.data()),
-    [result.data],
+  return useCreateSubscriptionQuery<Quiz[], Error>(
+    ['firestore_quizzes'],
+    (onSuccess) =>
+      onSnapshot(q, (snapshot) =>
+        onSuccess(snapshot.docs.map((doc) => doc.data())),
+      ),
+    { enabled: !isDisabled },
   );
-  const unfinishedQuizzes = React.useMemo(
-    () => quizzes.filter((quiz) => !quiz.isFinished),
-    [quizzes],
-  );
-
-  return {
-    ...result,
-    ...(!user.data ? { status: 'unauthenticated' } : {}),
-    quizzes,
-    unfinishedQuizzes,
-  };
 };

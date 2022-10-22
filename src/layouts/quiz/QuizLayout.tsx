@@ -10,10 +10,10 @@ import styles from './QuizLayout.module.scss';
 
 export const QuizLayout: React.FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter();
-  const { user } = useAuth();
+  const authResult = useAuth();
 
   React.useEffect(() => {
-    if (!user.data) router.push('/');
+    if (!authResult.data) router.push('/');
   });
 
   const { id } = router.query;
