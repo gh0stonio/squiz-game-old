@@ -1,9 +1,9 @@
 .container {
   display: flex;
   justify-content: flex-end;
-  place-items: center;
+  place-items: end;
   text-align: center;
-  height: 4vh;
+  height: 5vh;
   width: 100%;
   padding: 0 0.8rem;
 }
@@ -11,7 +11,12 @@
 .signedIn {
   display: flex;
   justify-content: space-between;
-  place-items: center;
+  place-items: end;
   text-align: center;
   width: 100%;
+  height: 100%;
+
+  p {
+    margin: 0;
+  }
 }
