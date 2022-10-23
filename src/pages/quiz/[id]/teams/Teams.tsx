@@ -13,3 +13,5 @@ export const Teams: NextPageWithLayout = () => {
 };
 
 Teams.getLayout = (page) => <QuizLayout>{page}</QuizLayout>;
+
+export default Teams;

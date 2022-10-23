@@ -13,3 +13,5 @@ export const Question: NextPageWithLayout = () => {
 };
 
 Question.getLayout = (page) => <QuizLayout>{page}</QuizLayout>;
+
+export default Question;

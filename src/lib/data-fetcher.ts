@@ -11,8 +11,8 @@ import { type Unsubscribe as FirestoreUnsubscribe } from 'firebase/firestore';
 
 type Unsubscribe = AuthUnsubscribe | FirestoreUnsubscribe;
 type SubscriptionFn<TQueryFnData, TError> = (
-  onSuccess: (data: TQueryFnData | null) => void,
-  onError: (data: TError | null) => void,
+  onSuccess: (data: TQueryFnData | null | undefined) => void,
+  onError: (data: TError | null | undefined) => void,
 ) => Unsubscribe;
 
 function createSubscriptionQueryFn<TQueryFnData, TError>(
@@ -23,7 +23,7 @@ function createSubscriptionQueryFn<TQueryFnData, TError>(
     let unsubscribe: Unsubscribe | undefined;
     let firstRun = true;
 
-    return new Promise<TQueryFnData | null>((resolve, reject) => {
+    return new Promise<TQueryFnData | null | undefined>((resolve, reject) => {
       unsubscribe = subscriptionFn(
         (data) => {
           if (firstRun) {
