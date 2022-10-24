@@ -5,7 +5,7 @@ import { useAuth } from '~/hooks/useAuth';
 import { type Quiz } from '~/types';
 
 type QuizzesResult =
-  | { status: 'ready'; quizzes: Quiz[]; ongoingQuizzes: Quiz[] }
+  | { status: 'ready'; quizzes: Quiz[] }
   | { status: 'loading' }
   | { status: 'disabled' }
   | { status: 'error'; error: Error };
@@ -26,7 +26,6 @@ export function useQuizzes(): QuizzesResult {
     return {
       status: 'ready',
       quizzes: context,
-      ongoingQuizzes: context.filter((quiz) => !quiz.isFinished),
     };
   }
 
