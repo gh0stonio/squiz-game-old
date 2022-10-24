@@ -1,12 +1,11 @@
 import '~/styles/globals.scss';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { AppProps } from 'next/app';
 
+import { AuthProvider } from '~/hooks/useAuth';
+import { QuizzesProvider } from '~/hooks/useQuizzes';
 import { BaseLayout } from '~/layouts/base/BaseLayout';
 import { type NextPageWithLayout } from '~/types';
-
-const queryClient = new QueryClient();
 
 function MyApp({
   Component,
@@ -18,9 +17,11 @@ function MyApp({
     Component.getLayout ?? ((page) => <BaseLayout>{page}</BaseLayout>);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {getLayout(<Component {...pageProps} />)}
-    </QueryClientProvider>
+    <AuthProvider>
+      <QuizzesProvider>
+        {getLayout(<Component {...pageProps} />)}
+      </QuizzesProvider>
+    </AuthProvider>
   );
 }
 

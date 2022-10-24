@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, type QueryDocumentSnapshot } from 'firebase/firestore';
 
-import { Quiz } from '~/types';
+import { Quiz, Team } from '~/types';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -22,6 +22,13 @@ export const converters = {
     fromFirestore: (snapshot: QueryDocumentSnapshot) => {
       const data = snapshot.data();
       return { ...data, id: snapshot.id } as Quiz;
+    },
+  },
+  team: {
+    toFirestore: (team: Team) => team,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) => {
+      const data = snapshot.data();
+      return { ...data, id: snapshot.id } as Team;
     },
   },
 };
