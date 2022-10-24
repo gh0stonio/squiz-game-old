@@ -1,5 +1,4 @@
 import {
-  type AuthError,
   type User,
   type UserCredential,
   signInWithPopup,
@@ -8,34 +7,16 @@ import {
 } from 'firebase/auth';
 import * as React from 'react';
 
+import { AuthContext } from '~/context/Auth';
 import { auth } from '~/lib/firebase';
 
 type AuthResult =
   | { status: 'disconnected'; logIn: () => Promise<UserCredential> }
-  | { status: 'connected'; data: User; logOut: () => Promise<void> }
+  | { status: 'connected'; user: User; logOut: () => Promise<void> }
   | { status: 'error'; error: Error };
 
-const FirebaseAuthContext = React.createContext<User | null>(null);
-
-export function AuthProvider({
-  children,
-}: React.PropsWithChildren): JSX.Element {
-  const [user, setUser] = React.useState<User | null>(null);
-
-  React.useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(setUser);
-    return unsubscribe;
-  }, []);
-
-  return (
-    <FirebaseAuthContext.Provider value={user}>
-      {children}
-    </FirebaseAuthContext.Provider>
-  );
-}
-
 export function useAuth(): AuthResult {
-  const context = React.useContext(FirebaseAuthContext);
+  const context = React.useContext(AuthContext);
 
   const logOut = React.useCallback(() => signOut(auth), []);
   const logIn = React.useCallback(
@@ -52,7 +33,7 @@ export function useAuth(): AuthResult {
   if (context) {
     return {
       status: 'connected',
-      data: context,
+      user: context,
       logOut,
     };
   }

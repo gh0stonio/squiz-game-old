@@ -2,8 +2,8 @@ import '~/styles/globals.scss';
 
 import type { AppProps } from 'next/app';
 
-import { AuthProvider } from '~/hooks/useAuth';
-import { QuizzesProvider } from '~/hooks/useQuizzes';
+import { AuthProvider } from '~/context/Auth';
+import { QuizzesProvider } from '~/context/Quizzes';
 import { BaseLayout } from '~/layouts/base/BaseLayout';
 import { type NextPageWithLayout } from '~/types';
 

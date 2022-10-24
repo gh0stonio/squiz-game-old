@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { match } from 'ts-pattern';
 
-import { useQuiz } from '~/hooks/useQuizzes';
+import { useQuiz } from '~/hooks/useQuiz';
 import { QuizLayout } from '~/layouts/quiz/QuizLayout';
 import { type NextPageWithLayout } from '~/types';
 
@@ -36,8 +36,8 @@ export const Teams: NextPageWithLayout = () => {
             </Link>
           </p>
         ))
-        .with({ status: 'ready' }, ({ data }) =>
-          data.teams?.map((team) => <p key={team.id}>{team.id}</p>),
+        .with({ status: 'ready' }, ({ quiz }) =>
+          quiz.teams?.map((team) => <p key={team.id}>{team.id}</p>),
         )
         .with({ status: 'error' }, () => <p>shit happened ¯\_(ツ)_/¯</p>)
         .exhaustive()}

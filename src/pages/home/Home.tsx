@@ -11,7 +11,7 @@ import styles from './Home.module.scss';
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const quizzes = useQuizzes();
+  const quizzesResult = useQuizzes();
 
   return (
     <div className={styles.container}>
@@ -25,11 +25,12 @@ const Home: NextPage = () => {
 
       <h1>Squiz Game</h1>
 
-      {match(quizzes)
+      {match(quizzesResult)
         .with({ status: 'disabled' }, () => <p>Please sign in.</p>)
-        .with({ status: 'ready', data: P.union(P.nullish, []) }, () => (
-          <p>no quiz available</p>
-        ))
+        .with(
+          { status: 'ready', ongoingQuizzes: P.union(P.nullish, []) },
+          () => <p>no quiz available</p>,
+        )
         .with({ status: 'ready' }, ({ ongoingQuizzes }) => (
           <div className={styles.quizzes}>
             {ongoingQuizzes.map((quiz) => (

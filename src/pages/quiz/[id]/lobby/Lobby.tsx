@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { match } from 'ts-pattern';
 
-import { useQuiz } from '~/hooks/useQuizzes';
+import { useQuiz } from '~/hooks/useQuiz';
 import { QuizLayout } from '~/layouts/quiz/QuizLayout';
 import { type NextPageWithLayout } from '~/types';
 

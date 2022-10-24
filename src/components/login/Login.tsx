@@ -5,17 +5,17 @@ import { useAuth } from '~/hooks/useAuth';
 import styles from './Login.module.scss';
 
 export const Login: React.FC = () => {
-  const auth = useAuth();
+  const authResult = useAuth();
 
   return (
     <div className={styles.container}>
-      {match(auth)
+      {match(authResult)
         .with({ status: 'disconnected' }, ({ logIn }) => (
           <button onClick={logIn}>Sign In</button>
         ))
-        .with({ status: 'connected' }, ({ data, logOut }) => (
+        .with({ status: 'connected' }, ({ user, logOut }) => (
           <div className={styles.signedIn}>
-            <p>Welcome {data.displayName}</p>
+            <p>Welcome {user.displayName}</p>
             <button onClick={logOut}>Sign Out</button>
           </div>
         ))

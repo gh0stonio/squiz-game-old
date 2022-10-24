@@ -13,7 +13,7 @@ export const QuizLayout: React.FC<PropsWithChildren> = ({ children }) => {
   const authResult = useAuth();
 
   React.useEffect(() => {
-    if (!authResult.data) router.push('/');
+    if (authResult.status !== 'connected') router.push('/');
   });
 
   const { id } = router.query;
