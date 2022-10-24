@@ -18,7 +18,6 @@ export const Lobby: NextPageWithLayout = () => {
       <p>Lobby for quiz {id}</p>
 
       {match(quiz)
-        .with({ status: 'loading' }, () => <p>fetching ...</p>)
         .with({ status: 'not_found' }, () => (
           <p>
             No quiz found for this id, please go back{' '}
@@ -35,7 +34,20 @@ export const Lobby: NextPageWithLayout = () => {
             </Link>
           </p>
         ))
-        .with({ status: 'ready' }, () => <p>Quiz ongoing...</p>)
+        .with({ status: 'ready' }, ({ quiz }) => {
+          if (!quiz.myTeam) {
+            return (
+              <p>
+                Please choose your team first{' '}
+                <Link href={{ pathname: '/quiz/[id]/teams', query: { id } }}>
+                  <a>Teams</a>
+                </Link>
+              </p>
+            );
+          }
+
+          return <p>Quiz ongoing... wait for next question</p>;
+        })
         .with({ status: 'error' }, () => <p>shit happened ¯\_(ツ)_/¯</p>)
         .exhaustive()}
     </div>

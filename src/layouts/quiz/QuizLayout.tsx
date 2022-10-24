@@ -29,10 +29,6 @@ export const QuizLayout: React.FC<PropsWithChildren> = ({ children }) => {
           <a>Teams</a>
         </Link>
         |
-        <Link href={{ pathname: '/quiz/[id]/question', query: { id } }}>
-          <a>Question</a>
-        </Link>
-        |
         <Link href={{ pathname: '/' }}>
           <a>Exit</a>
         </Link>

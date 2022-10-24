@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { match } from 'ts-pattern';
+import { match, P } from 'ts-pattern';
 
 import { useQuiz } from '~/hooks/useQuiz';
 import { QuizLayout } from '~/layouts/quiz/QuizLayout';
@@ -13,13 +13,10 @@ export const Teams: NextPageWithLayout = () => {
   const { id } = router.query;
   const quiz = useQuiz(id as string | undefined);
 
-  console.log(quiz);
-
   return (
     <div className={styles.container}>
       Teams for quiz {id}
       {match(quiz)
-        .with({ status: 'loading' }, () => <p>fetching ...</p>)
         .with({ status: 'not_found' }, () => (
           <p>
             No quiz found for this id, please go back{' '}
@@ -36,8 +33,23 @@ export const Teams: NextPageWithLayout = () => {
             </Link>
           </p>
         ))
-        .with({ status: 'ready' }, ({ quiz }) =>
-          quiz.teams?.map((team) => <p key={team.id}>{team.id}</p>),
+        .with(
+          { status: 'ready', quiz: { teams: P.union(P.nullish, []) } },
+          () => <p>no teams available</p>,
+        )
+        .with({ status: 'ready' }, ({ quiz, joinTeam, leaveTeam }) =>
+          quiz.teams?.map((team) => (
+            <div key={team.id}>
+              {team.id}
+              {quiz.myTeam?.id === team.id ? (
+                <button onClick={() => leaveTeam(team)}>leave</button>
+              ) : (
+                !quiz.myTeam && (
+                  <button onClick={() => joinTeam(team)}>join</button>
+                )
+              )}
+            </div>
+          )),
         )
         .with({ status: 'error' }, () => <p>shit happened ¯\_(ツ)_/¯</p>)
         .exhaustive()}

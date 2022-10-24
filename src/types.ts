@@ -25,4 +25,5 @@ export interface Quiz {
   questions?: Question[];
   currentQuestion?: Question;
   teams?: Team[];
+  myTeam?: Team;
 }
