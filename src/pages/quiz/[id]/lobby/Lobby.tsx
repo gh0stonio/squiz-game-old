@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { match } from 'ts-pattern';
+import { match, P } from 'ts-pattern';
 
 import { useQuiz } from '~/hooks/useQuiz';
 import { QuizLayout } from '~/layouts/quiz/QuizLayout';
@@ -18,38 +18,25 @@ export const Lobby: NextPageWithLayout = () => {
       <p>Lobby for quiz {id}</p>
 
       {match(quiz)
-        .with({ status: 'not_found' }, () => (
+        .with({ status: 'ready', quiz: { myTeam: P.nullish } }, () => (
           <p>
-            No quiz found for this id, please go back{' '}
-            <Link href={{ pathname: '/' }}>
-              <a>Home</a>
-            </Link>
-          </p>
-        ))
-        .with({ status: 'ready', data: { isFinished: true } }, () => (
-          <p>
-            This quiz is over, please go back{' '}
-            <Link href={{ pathname: '/' }}>
-              <a>Home</a>
+            Please choose your team first{' '}
+            <Link href={{ pathname: '/quiz/[id]/teams', query: { id } }}>
+              <a>Teams</a>
             </Link>
           </p>
         ))
         .with({ status: 'ready' }, ({ quiz }) => {
-          if (!quiz.myTeam) {
-            return (
-              <p>
-                Please choose your team first{' '}
-                <Link href={{ pathname: '/quiz/[id]/teams', query: { id } }}>
-                  <a>Teams</a>
-                </Link>
-              </p>
-            );
-          }
-
           return <p>Quiz ongoing... wait for next question</p>;
         })
-        .with({ status: 'error' }, () => <p>shit happened ¯\_(ツ)_/¯</p>)
-        .exhaustive()}
+        .otherwise(() => (
+          <p>
+            You should not be here{' '}
+            <Link href="/">
+              <a>Go back home</a>
+            </Link>
+          </p>
+        ))}
     </div>
   );
 };

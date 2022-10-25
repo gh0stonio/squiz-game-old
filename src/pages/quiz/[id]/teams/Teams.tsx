@@ -17,22 +17,6 @@ export const Teams: NextPageWithLayout = () => {
     <div className={styles.container}>
       Teams for quiz {id}
       {match(quiz)
-        .with({ status: 'not_found' }, () => (
-          <p>
-            No quiz found for this id, please go back{' '}
-            <Link href={{ pathname: '/' }}>
-              <a>Home</a>
-            </Link>
-          </p>
-        ))
-        .with({ status: 'ready', data: { isFinished: true } }, () => (
-          <p>
-            This quiz is over, please go back{' '}
-            <Link href={{ pathname: '/' }}>
-              <a>Home</a>
-            </Link>
-          </p>
-        ))
         .with(
           { status: 'ready', quiz: { teams: P.union(P.nullish, []) } },
           () => <p>no teams available</p>,
@@ -52,7 +36,14 @@ export const Teams: NextPageWithLayout = () => {
           )),
         )
         .with({ status: 'error' }, () => <p>shit happened ¯\_(ツ)_/¯</p>)
-        .exhaustive()}
+        .otherwise(() => (
+          <p>
+            You should not be here{' '}
+            <Link href="/">
+              <a>Go back home</a>
+            </Link>
+          </p>
+        ))}
     </div>
   );
 };
