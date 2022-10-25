@@ -11,6 +11,12 @@ export interface Question {
   value: string;
   time: number;
   points: number;
+  order: number;
+  isDone: boolean;
+  startedAt?: {
+    seconds: number;
+    nano: number;
+  };
 }
 
 export interface Team {

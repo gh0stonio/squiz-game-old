@@ -1,4 +1,10 @@
-import { collection, onSnapshot, type Unsubscribe } from 'firebase/firestore';
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  type Unsubscribe,
+} from 'firebase/firestore';
 import * as React from 'react';
 
 import { useAuth } from '~/hooks/useAuth';
@@ -57,12 +63,15 @@ export function QuizzesProvider({
           // subscribing to quiz questions updates
           unsubs.push(
             onSnapshot(
-              collection(
-                db,
-                'quizzes',
-                `${quiz.id}`,
-                'questions',
-              ).withConverter(converters.question),
+              query(
+                collection(
+                  db,
+                  'quizzes',
+                  `${quiz.id}`,
+                  'questions',
+                ).withConverter(converters.question),
+                orderBy('order'),
+              ),
               (snapshot) => {
                 setQuizzes((currentQuizzes) =>
                   (currentQuizzes || []).map((_quiz) => {

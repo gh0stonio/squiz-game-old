@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { QuizzesContext } from '~/context/Quizzes';
 import { db } from '~/lib/firebase';
-import { Team, type Quiz } from '~/types';
+import { Question, Team, type Quiz } from '~/types';
 
 import { useAuth } from './useAuth';
 
@@ -12,6 +12,8 @@ type QuizResult =
   | {
       status: 'ready';
       quiz: Quiz;
+      lastQuestion?: Question;
+      currentQuestion?: Question;
       joinTeam: (team: Team) => void;
       leaveTeam: (team: Team) => void;
     }
@@ -47,6 +49,25 @@ export function useQuiz(quizId?: string): QuizResult {
     [quiz, authResult],
   );
 
+  const lastQuestion = React.useMemo(() => {
+    if (!quiz || !quiz.isStarted || authResult.status !== 'connected') return;
+
+    return (quiz.questions || []).filter((quiz) => quiz.isDone).at(-1);
+  }, [authResult.status, quiz]);
+  const currentQuestion = React.useMemo(() => {
+    if (!quiz || !quiz.isStarted || authResult.status !== 'connected') return;
+
+    const lastAvailableQuestion = (quiz.questions || [])
+      .filter((quiz) => !quiz.isDone)
+      .at(-1);
+    return lastAvailableQuestion &&
+      lastAvailableQuestion.startedAt &&
+      lastAvailableQuestion.startedAt.seconds + lastAvailableQuestion.time >
+        Date.now() / 1000
+      ? lastAvailableQuestion
+      : undefined;
+  }, [authResult.status, quiz]);
+
   if (context === undefined) {
     throw new Error('useQuiz must be used within a QuizzesProvider');
   }
@@ -58,6 +79,8 @@ export function useQuiz(quizId?: string): QuizResult {
   return {
     status: 'ready',
     quiz,
+    lastQuestion,
+    currentQuestion,
     joinTeam,
     leaveTeam,
   };
