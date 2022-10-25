@@ -1,10 +1,11 @@
 import '~/styles/globals.scss';
 
+import { ChakraProvider } from '@chakra-ui/react';
 import type { AppProps } from 'next/app';
 
 import { AuthProvider } from '~/context/Auth';
 import { QuizzesProvider } from '~/context/Quizzes';
-import { BaseLayout } from '~/layouts/base/BaseLayout';
+import { BaseLayout } from '~/layouts/BaseLayout';
 import { type NextPageWithLayout } from '~/types';
 
 function MyApp({
@@ -19,7 +20,9 @@ function MyApp({
   return (
     <AuthProvider>
       <QuizzesProvider>
-        {getLayout(<Component {...pageProps} />)}
+        <ChakraProvider>
+          {getLayout(<Component {...pageProps} />)}
+        </ChakraProvider>
       </QuizzesProvider>
     </AuthProvider>
   );

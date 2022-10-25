@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 
-import { QuizLayout } from '~/layouts/quiz/QuizLayout';
+import { QuizLayout } from '~/layouts/QuizLayout';
 import { type NextPageWithLayout } from '~/types';
 
 import styles from './Question.module.scss';

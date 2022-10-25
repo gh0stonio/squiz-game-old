@@ -1,28 +1,41 @@
-import { match, P } from 'ts-pattern';
+import { Button, Flex } from '@chakra-ui/react';
+import { Icon } from '@chakra-ui/react';
+import { FaSignOutAlt, FaSignInAlt } from 'react-icons/fa';
+import { match } from 'ts-pattern';
 
 import { useAuth } from '~/hooks/useAuth';
-
-import styles from './Login.module.scss';
 
 export const Login: React.FC = () => {
   const authResult = useAuth();
 
   return (
-    <div className={styles.container}>
+    <Flex
+      height="5vh"
+      width="100%"
+      align="flex-end"
+      justify="flex-end"
+      px="16px"
+    >
       {match(authResult)
         .with({ status: 'disconnected' }, ({ logIn }) => (
-          <button onClick={logIn}>Sign In</button>
+          <Button onClick={logIn}>
+            Sign In
+            <Icon as={FaSignInAlt} ml={3} />
+          </Button>
         ))
         .with({ status: 'connected' }, ({ user, logOut }) => (
-          <div className={styles.signedIn}>
+          <Flex width="100%" justify="space-between">
             <p>Welcome {user.displayName}</p>
-            <button onClick={logOut}>Sign Out</button>
-          </div>
+            <Button onClick={logOut}>
+              Sign Out
+              <Icon as={FaSignOutAlt} ml={3} />
+            </Button>
+          </Flex>
         ))
         .with({ status: 'error' }, ({ error }) => (
           <p>shit happened {error.message}</p>
         ))
         .otherwise(() => null)}
-    </div>
+    </Flex>
   );
 };

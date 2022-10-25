@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { match, P } from 'ts-pattern';
 
 import { useQuiz } from '~/hooks/useQuiz';
-import { QuizLayout } from '~/layouts/quiz/QuizLayout';
+import { QuizLayout } from '~/layouts/QuizLayout';
 import { type NextPageWithLayout } from '~/types';
 
 import styles from './Lobby.module.scss';
