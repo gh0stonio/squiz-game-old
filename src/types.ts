@@ -7,6 +7,7 @@ export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
 };
 
 export interface Question {
+  id: string;
   value: string;
   time: number;
   points: number;
@@ -20,6 +21,7 @@ export interface Team {
 
 export interface Quiz {
   id: string;
+  isStarted: boolean;
   isFinished: boolean;
   adminUids: User['uid'][];
   questions?: Question[];

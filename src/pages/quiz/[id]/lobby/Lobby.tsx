@@ -26,7 +26,10 @@ export const Lobby: NextPageWithLayout = () => {
             </Link>
           </p>
         ))
-        .with({ status: 'ready' }, ({ quiz }) => {
+        .with({ status: 'ready', quiz: { isStarted: false } }, () => {
+          return <p>Please wait for the quiz to start</p>;
+        })
+        .with({ status: 'ready' }, () => {
           return <p>Quiz ongoing... wait for next question</p>;
         })
         .otherwise(() => (

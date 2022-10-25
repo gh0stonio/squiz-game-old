@@ -24,8 +24,8 @@ export function QuizzesProvider({
       onSnapshot(q, (snapshot) => {
         const _quizzes = snapshot.docs.map((doc) => doc.data());
 
-        // subscribing to quiz teams updates
         _quizzes?.forEach((quiz) => {
+          // subscribing to quiz teams updates
           unsubs.push(
             onSnapshot(
               collection(db, 'quizzes', `${quiz.id}`, 'teams').withConverter(
@@ -44,6 +44,33 @@ export function QuizzesProvider({
                             (membersUid) => membersUid === authResult.user.uid,
                           ),
                         ),
+                      };
+                    }
+
+                    return _quiz;
+                  }),
+                );
+              },
+            ),
+          );
+
+          // subscribing to quiz questions updates
+          unsubs.push(
+            onSnapshot(
+              collection(
+                db,
+                'quizzes',
+                `${quiz.id}`,
+                'questions',
+              ).withConverter(converters.question),
+              (snapshot) => {
+                setQuizzes((currentQuizzes) =>
+                  (currentQuizzes || []).map((_quiz) => {
+                    if (_quiz.id === quiz.id) {
+                      const questions = snapshot.docs.map((doc) => doc.data());
+                      return {
+                        ..._quiz,
+                        questions,
                       };
                     }
 
