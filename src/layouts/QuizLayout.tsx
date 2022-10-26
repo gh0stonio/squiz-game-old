@@ -2,19 +2,19 @@ import { Box, Center, Link } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { PropsWithChildren } from 'react';
+import { type PropsWithChildren } from 'react';
 import { match } from 'ts-pattern';
 
 import { useAuth } from '~/hooks/useAuth';
 import { useQuiz } from '~/hooks/useQuiz';
 import { BaseLayout } from '~/layouts/BaseLayout';
 
-export const QuizLayout: React.FC<PropsWithChildren> = ({ children }) => {
+export default function QuizLayout({ children }: PropsWithChildren) {
   const router = useRouter();
   const authResult = useAuth();
 
-  const { id } = router.query;
-  const quiz = useQuiz(id as string | undefined);
+  const quizId = router.query.id as string | undefined;
+  const quiz = useQuiz(quizId);
 
   React.useEffect(() => {
     if (authResult.status !== 'connected') router.push('/');
@@ -23,17 +23,17 @@ export const QuizLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <BaseLayout>
       <Center height="5vh" width="100vw" gap="1rem">
-        <NextLink href={{ pathname: '/quiz/[id]/lobby', query: { id } }}>
-          <Link>Lobby</Link>
-        </NextLink>
+        <Link as={NextLink} href={`/quiz/${quizId}/lobby`}>
+          Lobby
+        </Link>
         |
-        <NextLink href={{ pathname: '/quiz/[id]/teams', query: { id } }}>
-          <Link>Teams</Link>
-        </NextLink>
+        <Link as={NextLink} href={`/quiz/${quizId}/teams`}>
+          Teams
+        </Link>
         |
-        <NextLink href={{ pathname: '/' }}>
-          <Link>Exit</Link>
-        </NextLink>
+        <Link as={NextLink} href={'/'}>
+          Exit
+        </Link>
       </Center>
 
       <Box height="95vh" width="100vw">
@@ -41,17 +41,17 @@ export const QuizLayout: React.FC<PropsWithChildren> = ({ children }) => {
           .with({ status: 'not_found' }, () => (
             <p>
               No quiz found for this id, please go back{' '}
-              <NextLink href={{ pathname: '/' }}>
-                <Link>Home</Link>
-              </NextLink>
+              <Link as={NextLink} href={'/'}>
+                Home
+              </Link>
             </p>
           ))
-          .with({ status: 'ready', data: { isFinished: true } }, () => (
+          .with({ status: 'ready', quiz: { isFinished: true } }, () => (
             <p>
               This quiz is over, please go back{' '}
-              <NextLink href={{ pathname: '/' }}>
-                <Link>Home</Link>
-              </NextLink>
+              <Link as={NextLink} href={'/'}>
+                Home
+              </Link>
             </p>
           ))
           .with({ status: 'ready' }, () => children)
@@ -60,4 +60,4 @@ export const QuizLayout: React.FC<PropsWithChildren> = ({ children }) => {
       </Box>
     </BaseLayout>
   );
-};
+}

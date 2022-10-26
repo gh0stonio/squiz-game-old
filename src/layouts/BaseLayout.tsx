@@ -1,7 +1,7 @@
 import { Flex } from '@chakra-ui/react';
 import { PropsWithChildren } from 'react';
 
-import { Login } from '~/components/login/Login';
+import { Login } from '~/components/Login';
 
 export const BaseLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return (

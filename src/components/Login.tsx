@@ -18,15 +18,15 @@ export const Login: React.FC = () => {
     >
       {match(authResult)
         .with({ status: 'disconnected' }, ({ logIn }) => (
-          <Button onClick={logIn}>
+          <Button onClick={logIn} size="sm" colorScheme="pink">
             Sign In
             <Icon as={FaSignInAlt} ml={3} />
           </Button>
         ))
         .with({ status: 'connected' }, ({ user, logOut }) => (
-          <Flex width="100%" justify="space-between">
+          <Flex width="100%" justify="space-between" align="center">
             <p>Welcome {user.displayName}</p>
-            <Button onClick={logOut}>
+            <Button onClick={logOut} size="sm" colorScheme="pink">
               Sign Out
               <Icon as={FaSignOutAlt} ml={3} />
             </Button>

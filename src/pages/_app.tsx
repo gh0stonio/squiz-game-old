@@ -1,6 +1,4 @@
-import '~/styles/globals.scss';
-
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import type { AppProps } from 'next/app';
 
 import { AuthProvider } from '~/context/Auth';
@@ -8,7 +6,30 @@ import { QuizzesProvider } from '~/context/Quizzes';
 import { BaseLayout } from '~/layouts/BaseLayout';
 import { type NextPageWithLayout } from '~/types';
 
-function MyApp({
+const theme = extendTheme({
+  initialColorMode: 'light',
+  useSystemColorMode: false,
+  styles: {
+    global: {
+      'html, body': {
+        backgroundColor: 'gray.800',
+        color: 'gray.50',
+      },
+      '*': {
+        boxSizing: 'border-box',
+      },
+      '#content > div': {
+        width: '100%',
+        height: '100%',
+      },
+      a: {
+        color: 'teal.500 !important',
+      },
+    },
+  },
+});
+
+export default function MyApp({
   Component,
   pageProps,
 }: AppProps & {
@@ -20,12 +41,10 @@ function MyApp({
   return (
     <AuthProvider>
       <QuizzesProvider>
-        <ChakraProvider>
+        <ChakraProvider theme={theme}>
           {getLayout(<Component {...pageProps} />)}
         </ChakraProvider>
       </QuizzesProvider>
     </AuthProvider>
   );
 }
-
-export default MyApp;

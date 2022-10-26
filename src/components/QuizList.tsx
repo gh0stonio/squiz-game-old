@@ -4,7 +4,9 @@ import React from 'react';
 
 import { Quiz } from '~/types';
 
-export function QuizList({ quizzes }: { quizzes: Quiz[] }) {
+type QuizListProps = { quizzes: Quiz[] };
+
+export default function QuizList({ quizzes }: QuizListProps) {
   const router = useRouter();
 
   const ongoingQuizzes = React.useMemo(
@@ -13,33 +15,28 @@ export function QuizList({ quizzes }: { quizzes: Quiz[] }) {
   );
 
   return (
-    <SimpleGrid columns={3} spacing={10} width="1000px" height="100%" pt={10}>
+    <SimpleGrid columns={3} spacing={10} width="100%" height="100%" p={10}>
       {ongoingQuizzes.map((quiz) => (
         <Flex
           key={quiz.id}
-          height="160px"
-          width="250px"
+          height="130px"
+          width="100%"
           direction="column"
-          bgColor="gray.700"
+          bgColor="gray.600"
           overflow="hidden"
           justifyContent="space-between"
           p={4}
           rounded={6}
         >
-          <Heading mb={6} textTransform="capitalize">
+          <Heading as="h3" size="lg" mb={6} textTransform="capitalize">
             {quiz.id}
           </Heading>
           <Flex width="100%" justifyContent="flex-end">
             <Button
               width="75px"
               height="30px"
-              colorScheme="teal"
-              onClick={() =>
-                router.push({
-                  pathname: '/quiz/[id]/lobby',
-                  query: { id: quiz.id },
-                })
-              }
+              colorScheme="pink"
+              onClick={() => router.push(`/quiz/${quiz.id}/lobby`)}
             >
               Join
             </Button>
