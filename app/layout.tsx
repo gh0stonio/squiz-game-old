@@ -1,4 +1,7 @@
 import 'server-only';
+
+import '~/misc/styles/globals.css';
+
 import React from 'react';
 
 import AuthProvider from './context/AuthContext';
@@ -18,7 +21,7 @@ export default async function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Squiz Game" />
       </head>
-      <body>
+      <body className="h-screen w-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-700 text-gray-50 antialiased [&>div]:h-full [&>div]:w-full [&>div>div]:h-full [&>div>div]:w-full">
         <AuthProvider userFromServerAuth={user}>{children}</AuthProvider>
       </body>
     </html>

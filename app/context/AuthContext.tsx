@@ -16,11 +16,10 @@ async function logIn() {
   });
   const result = await signInWithPopup(auth, provider);
 
-  if (!result.user.emailVerified)
-    throw new Error('This email has not been verified by Google');
+  if (!result.user.emailVerified) throw new Error('Not verified');
 
   if (!result.user.email?.endsWith('datadoghq.com'))
-    throw new Error('This email is not of our pups !');
+    throw new Error('Not a pup');
 
   const idToken = await result.user.getIdToken(true);
   setCookie(null, 'id_token', idToken, {
