@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -16,9 +16,15 @@
     "trailingComma": "all"
   },
   "dependencies": {
+    "client-only": "^0.0.1",
+    "firebase": "^9.13.0",
+    "firebase-admin": "^11.2.0",
+    "jwt-decode": "^3.1.2",
     "next": "^13.0.1",
+    "nookies": "^2.5.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "server-only": "^0.0.1",
     "ts-pattern": "^4.0.5"
   },
   "devDependencies": {
