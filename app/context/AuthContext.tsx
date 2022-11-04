@@ -1,6 +1,7 @@
 'use client';
 import 'client-only';
 import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { type User as FirebaseUser } from 'firebase/auth';
 import { destroyCookie, setCookie } from 'nookies';
 import React from 'react';
 
@@ -9,6 +10,22 @@ import { User } from '~/types';
 
 const AuthContext = React.createContext<User | undefined>(undefined);
 
+async function updateCookieToken(user: FirebaseUser, auto: boolean = false) {
+  const idToken = await user.getIdToken(true);
+  console.log('renew token');
+  setCookie(null, 'id_token', idToken, {
+    maxAge: 60 * 60, // 1 hour
+    path: '/',
+    sameSite: true,
+  });
+
+  if (auto) {
+    console.log('will auto renew token in 55min');
+    setTimeout(() => {
+      updateCookieToken(user, true);
+    }, 3300000); // 55min
+  }
+}
 async function logIn() {
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({
@@ -17,26 +34,21 @@ async function logIn() {
   const result = await signInWithPopup(auth, provider);
 
   if (!result.user.emailVerified) throw new Error('Not verified');
-
   if (!result.user.email?.endsWith('datadoghq.com'))
     throw new Error('Not a pup');
 
-  const idToken = await result.user.getIdToken(true);
-  setCookie(null, 'id_token', idToken, {
-    maxAge: 24 * 60 * 60, // 1 day
-    path: '/',
-    sameSite: true,
-  });
+  await updateCookieToken(result.user);
 }
+
 async function logOut() {
   await signOut(auth);
   destroyCookie(null, 'id_token');
 }
 
-export const useAuth = () => {
+export function useAuth() {
   const user = React.useContext(AuthContext);
   return { user, logIn, logOut };
-};
+}
 
 export default function AuthProvider({
   children,
@@ -45,8 +57,18 @@ export default function AuthProvider({
   const [user, setUser] = React.useState<User | undefined>(userFromServerAuth);
 
   React.useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-      if (!firebaseUser || user) return;
+    if (!user) {
+      // enforce logging out if no user receive from the serve
+      // might occur if token expire
+      logOut();
+    }
+  }, []);
+
+  React.useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+      if (!firebaseUser) return;
+
+      await updateCookieToken(firebaseUser, true);
 
       setUser({
         uid: firebaseUser.uid,
@@ -56,8 +78,9 @@ export default function AuthProvider({
         photoURL: firebaseUser.photoURL,
       });
     });
+
     return unsubscribe;
-  }, [user]);
+  }, []);
 
   return <AuthContext.Provider value={user}>{children}</AuthContext.Provider>;
 }
