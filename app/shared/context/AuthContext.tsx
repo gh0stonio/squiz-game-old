@@ -24,7 +24,7 @@ async function autoRenewTokenCookie(user: FirebaseUser) {
   if (autoRenewOn) return;
 
   autoRenewOn = true;
-  const foo = setInterval(() => {
+  setInterval(() => {
     updateTokenCookie(user);
   }, 600000); // 10min
 }

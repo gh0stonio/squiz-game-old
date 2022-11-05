@@ -24,7 +24,7 @@ export default async function RootLayout({
         <meta name="description" content="Squiz Game" />
       </head>
       <body>
-        <div className="h-screen w-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-700 text-black antialiased [&>div]:h-full [&>div]:w-full [&>div>div]:h-full [&>div>div]:w-full">
+        <div className="h-screen w-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-700 text-black antialiased">
           <AuthProvider userFromServerAuth={user}>{children}</AuthProvider>
         </div>
 

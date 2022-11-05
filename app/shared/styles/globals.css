@@ -5,3 +5,7 @@
 * {
   box-sizing: border-box;
 }
+[data-nextjs-scroll-focus-boundary] {
+  width: 100%;
+  height: 100%;
+}
