@@ -16,7 +16,7 @@ export default function QuizList() {
     <div className="w-full overflow-auto">
       <table className="table w-full">
         <thead className="sticky top-0">
-          <tr className="h-12 [&>th]:bg-gray-500">
+          <tr className="h-12 [&>th]:bg-gray-200">
             <th className="w-6/12">Name</th>
             <th className="w-1/12 text-end">Questions</th>
             <th className="w-1/12 text-end">Created At</th>
@@ -27,9 +27,9 @@ export default function QuizList() {
         </thead>
         <tbody>
           {quizzes.length > 0 ? (
-            quizzes.map((quiz, index) => {
+            quizzes.map((quiz) => {
               return (
-                <tr key={quiz.id} className="h-12 [&>td]:bg-gray-200">
+                <tr key={quiz.id} className="h-12">
                   <td>{quiz.name}</td>
                   <td className="text-end">{quiz.questions?.length}</td>
                   <td className="text-end">
@@ -56,7 +56,7 @@ export default function QuizList() {
                   <td>
                     <div className="flex justify-end">
                       <HiLink
-                        className="h-8 w-8 cursor-pointer pl-3 text-gray-500"
+                        className="h-8 w-8 cursor-pointer pl-3 text-gray-400"
                         onClick={() => {
                           const url = new URL(window.location.href);
                           navigator.clipboard.writeText(
@@ -65,13 +65,13 @@ export default function QuizList() {
                         }}
                       />
                       <HiPencil
-                        className="h-8 w-8 cursor-pointer pl-3 text-gray-500"
+                        className="h-8 w-8 cursor-pointer pl-3 text-gray-400"
                         onClick={() => {
                           router.push(`/quiz/admin/form/${quiz.id}`);
                         }}
                       />
                       <HiTrash
-                        className="h-8 w-8 cursor-pointer pl-3 text-gray-500"
+                        className="h-8 w-8 cursor-pointer pl-3 text-gray-400"
                         onClick={() => deleteQuiz(quiz.id)}
                       />
                     </div>
@@ -80,7 +80,7 @@ export default function QuizList() {
               );
             })
           ) : (
-            <tr className="h-12 [&>td]:bg-gray-200">
+            <tr className="h-12">
               <td colSpan={7}>
                 <span className="flex w-full items-center justify-center">
                   No quiz yet

@@ -43,11 +43,12 @@ export function useQuiz(quizId?: string) {
   const router = useRouter();
   const { quizzes, setQuizzes } = useQuizzes();
 
-  const quiz = React.useMemo(() => {
-    return quizzes.find((quiz) => quiz.id === quizId);
-  }, [quizId, quizzes]);
+  const quiz = React.useMemo(
+    () => quizzes.find((quiz) => quiz.id === quizId),
+    [quizId, quizzes],
+  );
 
-  function saveQuiz(values: Pick<Quiz, 'name' | 'description'>, quiz?: Quiz) {
+  function saveQuiz(values: Pick<Quiz, 'name' | 'description'>) {
     const id = uid(16);
 
     const isEdit = !!quiz;
@@ -59,7 +60,9 @@ export function useQuiz(quizId?: string) {
 
     return (
       save(
-        doc(db, 'quizzes', id).withConverter(genericConverter<Quiz>()),
+        doc(db, 'quizzes', quiz?.id || id).withConverter(
+          genericConverter<Quiz>(),
+        ),
         savedQuiz,
       )
         // .then(() =>
@@ -78,13 +81,23 @@ export function useQuiz(quizId?: string) {
           () => {
             router.push('/quiz/admin');
 
-            setQuizzes((_quizzes) => [..._quizzes, savedQuiz]);
-            toast.success('Quiz added !', {
+            setQuizzes((_quizzes) => {
+              if (isEdit) {
+                return _quizzes.map((_quiz) =>
+                  _quiz.id === quiz.id ? savedQuiz : _quiz,
+                );
+              }
+
+              return [..._quizzes, savedQuiz];
+            });
+
+            toast.success(`Quiz ${isEdit ? 'updated' : 'added'} !`, {
               theme: 'colored',
             });
           },
-          () => {
-            toast.error('Failed adding the Quiz !', {
+          (e) => {
+            console.error(e);
+            toast.error(`Failed ${isEdit ? 'updating' : 'adding'} the Quiz !`, {
               theme: 'colored',
             });
           },

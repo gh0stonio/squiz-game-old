@@ -7,6 +7,8 @@ import React from 'react';
 import { useQuiz } from '~/quiz/admin/components/QuizzesContext';
 import { Quiz } from '~/types';
 
+import QuestionList from './QuestionList';
+
 type QuizFormProps = {
   quizId?: Quiz['id'];
 };
@@ -71,13 +73,7 @@ export default function QuizForm({ quizId }: QuizFormProps) {
       </div>
 
       <div className="h-full w-full pt-10">
-        {/* <QuestionList
-          questions={questions}
-          onAddQuestion={onAddQuestion}
-          onEditQuestion={onEditQuestion}
-          onDeleteQuestion={onDeleteQuestion}
-        /> */}
-        question list
+        <QuestionList quizId={quiz?.id} />
       </div>
 
       <div className="mt-14 flex items-center justify-between">
