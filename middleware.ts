@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  if (request.nextUrl.pathname.startsWith('/quiz/admin')) {
     const admins = process.env.NEXT_PUBLIC_ROOT_ADMINS?.split(';');
     const decodedToken = jwt_decode(idTokenCookie.value) as { email: string };
 

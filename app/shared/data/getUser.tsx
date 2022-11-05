@@ -2,7 +2,7 @@ import 'server-only';
 import { cookies } from 'next/headers';
 import { cache } from 'react';
 
-import { auth } from '~/misc/lib/firebaseAdmin';
+import { auth } from '~/shared/lib/firebaseAdmin';
 import { User } from '~/types';
 
 const getUserCredentialsFromToken = cache(async (idToken: string) => {
