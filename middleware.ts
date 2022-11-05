@@ -6,7 +6,9 @@ export async function middleware(request: NextRequest) {
   const idTokenCookie = request.cookies.get('id_token');
 
   if (!idTokenCookie) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(
+      new URL(`/login?referer=${request.nextUrl.pathname}`, request.url),
+    );
   }
 
   if (request.nextUrl.pathname.startsWith('/admin')) {

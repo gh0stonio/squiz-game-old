@@ -1,11 +1,11 @@
 import 'server-only';
 
-import '~/misc/styles/globals.css';
+import '~/shared/styles/globals.css';
 
 import React from 'react';
 
-import AuthProvider from './context/AuthContext';
-import { getUser } from './misc/data/getUser';
+import AuthProvider from '~/shared/context/AuthContext';
+import { getUser } from '~/shared/data/getUser';
 
 export default async function RootLayout({
   children,

@@ -11,7 +11,7 @@ export default function LoginPage() {
     <div className="h-full w-full py-16">
       <div className="container m-auto flex h-full items-center justify-center px-6 text-gray-500 md:px-12 xl:px-40">
         <div className="m-auto w-5/12">
-          <div className="rounded-xl bg-gray-50 shadow-xl">
+          <div className="rounded-xl bg-gray-100 shadow-xl">
             <div className="px-14 pt-14 pb-8">
               <div className="space-y-4">
                 <Image src={Logo} alt="logo" height={120} priority />

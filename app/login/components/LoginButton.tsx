@@ -1,23 +1,18 @@
 'use client';
 import 'client-only';
-import { useRouter } from 'next/navigation';
 import { FcGoogle } from 'react-icons/fc';
 import React from 'react';
 
-import { useAuth } from '~/context/AuthContext';
+import { useAuth } from '~/shared/context/AuthContext';
 
 export default function LoginButton() {
   const auth = useAuth();
-  const router = useRouter();
 
   const [error, setError] = React.useState<Error>();
 
   const logIn = React.useCallback(() => {
-    auth.logIn().then(
-      () => router.push('/'),
-      (e) => setError(e),
-    );
-  }, [auth, router]);
+    auth.logIn().catch((e) => setError(e));
+  }, [auth]);
 
   return (
     <>
