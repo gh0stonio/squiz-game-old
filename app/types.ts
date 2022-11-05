@@ -7,3 +7,23 @@ export type User = {
   emailVerified?: FirebaseUser['emailVerified'];
   photoURL?: FirebaseUser['photoURL'];
 };
+
+export interface Question {
+  id: string;
+  text: string;
+  duration: number;
+  maxPoints: number;
+  createdAt: number;
+  updatedAt?: number;
+}
+
+export interface Quiz {
+  id: string;
+  name: string;
+  description: string;
+  status: 'ready' | 'in progress' | 'finished';
+  createdAt: number;
+  updatedAt?: number;
+
+  questions?: Question[];
+}
