@@ -1,6 +1,15 @@
 'use client';
 import 'client-only';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import React from 'react';
@@ -43,6 +52,7 @@ export default function useQuiz(quizId?: string) {
             updatedAt: Date.now(),
           }
         : { ...values, id, status: 'ready', createdAt: Date.now() };
+      delete savedQuiz.questions;
 
       return save(
         doc(db, 'quizzes', quiz?.id || id).withConverter(
@@ -50,6 +60,22 @@ export default function useQuiz(quizId?: string) {
         ),
         savedQuiz,
       )
+        .then(async () => {
+          if (!isEdit) return;
+
+          const questionsQuerySnapshot = await getDocs(
+            query(
+              collection(db, 'quizzes', quiz.id, 'questions'),
+              orderBy('createdAt'),
+            ).withConverter(genericConverter<Question>()),
+          );
+          questionsQuerySnapshot.forEach(async (questionDoc) => {
+            console.log('deleting', questionDoc.id);
+            await deleteDoc(
+              doc(db, 'quizzes', quiz.id, 'questions', questionDoc.id),
+            );
+          });
+        })
         .then(() =>
           Promise.all(
             questions.map((question) =>

@@ -1,18 +1,37 @@
 'use client';
 import 'client-only';
-import { deleteDoc, doc } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+} from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import React from 'react';
 
 import { QuizzesContext } from '~/quiz/admin/components/QuizzesContext';
-import { db } from '~/shared/lib/firebaseClient';
-import type { Quiz } from '~/types';
+import { db, genericConverter } from '~/shared/lib/firebaseClient';
+import type { Question, Quiz } from '~/types';
 
 export default function useQuizzes() {
   const { quizzes, setQuizzes } = React.useContext(QuizzesContext);
 
   const deleteQuiz = React.useCallback(
-    (quizId: Quiz['id']) => {
+    async (quizId: Quiz['id']) => {
+      const questionsQuerySnapshot = await getDocs(
+        query(
+          collection(db, 'quizzes', quizId, 'questions'),
+          orderBy('createdAt'),
+        ).withConverter(genericConverter<Question>()),
+      );
+      questionsQuerySnapshot.forEach(async (questionDoc) => {
+        await deleteDoc(
+          doc(db, 'quizzes', quizId, 'questions', questionDoc.id),
+        );
+      });
+
       deleteDoc(doc(db, 'quizzes', quizId)).then(
         () => {
           setQuizzes((_quizzes) =>

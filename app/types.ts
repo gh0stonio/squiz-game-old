@@ -11,6 +11,7 @@ export type User = {
 export interface Question {
   id: string;
   text: string;
+  answer: string;
   duration: number;
   maxPoints: number;
   createdAt: number;

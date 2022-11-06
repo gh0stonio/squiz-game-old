@@ -4,8 +4,7 @@ import { format } from 'date-fns';
 import { HiTrash, HiPencil } from 'react-icons/hi';
 import React from 'react';
 
-import useQuiz from '~/quiz/admin/hooks/useQuiz';
-import type { Question, Quiz } from '~/types';
+import type { Question } from '~/types';
 
 import QuestionFormModal from './QuestionFormModal';
 
@@ -22,8 +21,6 @@ export default function QuestionList({
   editQuestion,
   deleteQuestion,
 }: QuestionListProps) {
-  const { questions: foo } = useQuiz();
-  console.log(foo);
   const [isFormModalOpen, setIsFormModalOpen] = React.useState(false);
   const [question, setQuestion] = React.useState<Question>();
 

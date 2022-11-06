@@ -10,7 +10,7 @@ import type { Question } from '~/types';
 
 export type QuestionFormInputs = Pick<
   Question,
-  'text' | 'duration' | 'maxPoints'
+  'text' | 'answer' | 'duration' | 'maxPoints'
 >;
 type QuestionFormProps = {
   onClose: (question?: Question) => void;
@@ -50,13 +50,14 @@ export default function QuestionFormModal({
           ...data,
         };
 
+    reset();
     setIsSubmitting(true);
     closeModal(updatedQuestion);
   };
 
   return createPortal(
     <div className={'modal modal-open'}>
-      <div className="modal-box">
+      <div className="modal-box w-10/12 max-w-4xl">
         <h3 className="pb-4 text-lg font-bold">Add new question</h3>
 
         <form>
@@ -70,10 +71,27 @@ export default function QuestionFormModal({
               )}
             </label>
             <textarea
-              className={clsx('textarea-bordered textarea', {
+              className={clsx('textarea-bordered textarea h-60', {
                 'textarea-error': !!errors.text,
               })}
               {...register('text', { required: true })}
+            />
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text text-lg">Answer*</span>
+              {errors.answer && (
+                <span className="label-text-alt text-red-400">
+                  This field is required
+                </span>
+              )}
+            </label>
+            <textarea
+              className={clsx('textarea-bordered textarea', {
+                'textarea-error': !!errors.answer,
+              })}
+              {...register('answer', { required: true })}
             />
           </div>
 
