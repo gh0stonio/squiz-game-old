@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { HiTrash, HiPencil, HiLink } from 'react-icons/hi';
 import React from 'react';
 
-import { useQuizzes } from './QuizzesContext';
+import useQuizzes from '~/quiz/admin/hooks/useQuizzes';
 
 export default function QuizList() {
   const router = useRouter();
