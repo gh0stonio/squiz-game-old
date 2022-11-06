@@ -13,7 +13,7 @@ import QuestionList from './QuestionList';
 type QuizFormProps = {
   quizId?: Quiz['id'];
 };
-type QuizFormInputs = Pick<Quiz, 'name' | 'description'>;
+type QuizFormInputs = Pick<Quiz, 'name' | 'description' | 'maxMembersPerTeam'>;
 
 export default function QuizForm({ quizId }: QuizFormProps) {
   const {
@@ -43,8 +43,8 @@ export default function QuizForm({ quizId }: QuizFormProps) {
   return (
     <form className="flex flex-1 flex-col">
       <div className="flex h-full flex-col items-stretch">
-        <div className="flex w-full items-center justify-between gap-12">
-          <div className="form-control w-full">
+        <div className="flex w-full items-center justify-between gap-4">
+          <div className="form-control w-9/12">
             <label className="label">
               <span className="label-text text-lg">Label*</span>
               {errors.name && (
@@ -60,7 +60,26 @@ export default function QuizForm({ quizId }: QuizFormProps) {
             />
           </div>
 
-          <div className="form-control w-full">
+          <div className="form-control w-3/12">
+            <label className="label">
+              <span className="label-text text-lg">Members per team*</span>
+              {errors.maxMembersPerTeam && (
+                <span className="label-text-alt">This field is required</span>
+              )}
+            </label>
+            <input
+              type="number"
+              max={10}
+              className={clsx('input-bordered input', {
+                'input-error': !!errors.maxMembersPerTeam,
+              })}
+              {...register('maxMembersPerTeam', { required: true })}
+            />
+          </div>
+        </div>
+
+        <div>
+          <div className="w-12/12 form-control pt-2">
             <label className="label">
               <span className="label-text text-lg">Description*</span>
               {errors.description && (
@@ -84,12 +103,12 @@ export default function QuizForm({ quizId }: QuizFormProps) {
           deleteQuestion={deleteQuestion}
         />
 
-        <div className="flex items-center justify-between pt-14">
+        <div className="flex items-center justify-between pt-10">
           <Link href="/quiz/admin">
             <button className="btn-sm btn">Go back</button>
           </Link>
           {isSubmitting ? (
-            <button className="btn-disabled loading btn-square btn-sm btn" />
+            <button className="btn-disabled loading btn-sm btn-square btn" />
           ) : (
             <button
               type="submit"

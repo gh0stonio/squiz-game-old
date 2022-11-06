@@ -1,5 +1,12 @@
-import { updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import {
+  updateDoc,
+  doc,
+  arrayUnion,
+  arrayRemove,
+  setDoc,
+} from 'firebase/firestore';
 import React from 'react';
+import { uid } from 'uid';
 
 import { QuizContext } from '~/quiz/[id]/QuizContext';
 import { useAuth } from '~/shared/context/AuthContext';
@@ -11,17 +18,47 @@ export default function useQuiz() {
   const { quiz, setQuiz } = React.useContext(QuizContext);
   const [isTeamUpdateLoading, setIsTeamUpdateLoading] = React.useState(false);
 
+  const createTeam = React.useCallback(
+    (name: string) => {
+      if (!user) return;
+
+      const team: Team = {
+        id: uid(16),
+        name,
+        leader: user,
+        members: [user],
+      };
+
+      setIsTeamUpdateLoading(true);
+
+      return setDoc(
+        doc(db, 'quizzes', quiz.id, 'teams', team.id).withConverter(
+          genericConverter<Team>(),
+        ),
+        team,
+      ).then(() => {
+        setIsTeamUpdateLoading(false);
+        setQuiz({
+          ...quiz,
+          teams: [...(quiz.teams || []), team],
+          myTeam: team,
+        });
+      });
+    },
+    [quiz, setQuiz, user],
+  );
+
   const joinTeam = React.useCallback(
     (team: Team) => {
       if (!user) return;
 
       setIsTeamUpdateLoading(true);
-      updateDoc(
+      return updateDoc(
         doc(db, 'quizzes', quiz.id, 'teams', team.id).withConverter(
           genericConverter<Team>(),
         ),
         {
-          members: arrayUnion(user.name),
+          members: arrayUnion(user),
         },
       ).then(() => {
         setIsTeamUpdateLoading(false);
@@ -29,7 +66,7 @@ export default function useQuiz() {
           ...quiz,
           teams: quiz.teams?.map((_team) => {
             return _team.id === team.id
-              ? { ..._team, members: [..._team.members, user.name] }
+              ? { ..._team, members: [..._team.members, user] }
               : _team;
           }),
           myTeam: team,
@@ -44,8 +81,8 @@ export default function useQuiz() {
       if (!user) return;
 
       setIsTeamUpdateLoading(true);
-      updateDoc(doc(db, 'quizzes', quiz.id, 'teams', team.id), {
-        members: arrayRemove(user.name),
+      return updateDoc(doc(db, 'quizzes', quiz.id, 'teams', team.id), {
+        members: arrayRemove(user),
       }).then(() => {
         setIsTeamUpdateLoading(false);
         setQuiz({
@@ -55,7 +92,7 @@ export default function useQuiz() {
               ? {
                   ..._team,
                   members: _team.members.filter(
-                    (member) => member !== user.name,
+                    (member) => member.name !== user.name,
                   ),
                 }
               : _team;
@@ -67,5 +104,5 @@ export default function useQuiz() {
     [quiz, setQuiz, user],
   );
 
-  return { quiz, isTeamUpdateLoading, joinTeam, leaveTeam };
+  return { quiz, isTeamUpdateLoading, createTeam, joinTeam, leaveTeam };
 }

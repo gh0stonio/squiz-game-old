@@ -30,7 +30,7 @@ const getQuizFromFirebase = cache(async (id: string, user?: User) => {
     questions: questionsQuerySnapshot.docs.map((doc) => doc.data()),
     teams,
     myTeam: teams.find((team) =>
-      team.members.some((memberName) => memberName === user?.name),
+      team.members.some((member) => member.name === user?.name),
     ),
   };
 });

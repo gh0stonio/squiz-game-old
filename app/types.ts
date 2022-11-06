@@ -11,8 +11,8 @@ export type User = {
 export interface Team {
   id: string;
   name: string;
-  members: User['name'][];
-  leaderUid: User['uid'];
+  members: User[];
+  leader: User;
 }
 
 export interface Question {
@@ -35,6 +35,7 @@ export interface Quiz {
 
   questions?: Question[];
 
+  maxMembersPerTeam: number;
   teams?: Team[];
   myTeam?: Team;
 }

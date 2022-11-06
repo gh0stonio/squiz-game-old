@@ -26,7 +26,7 @@ export default function QuestionList({
 
   return (
     <div className="relative h-full w-full">
-      <div className="absolute top-0 left-0 right-0 bottom-0 flex h-full w-full flex-col pt-10">
+      <div className="absolute top-0 left-0 right-0 bottom-0 flex h-full w-full flex-col pt-8">
         <div className="flex w-full items-center justify-between">
           <h3 className="pb-2 text-lg font-bold">Questions</h3>
 

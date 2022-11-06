@@ -17,10 +17,15 @@ export default async function QuizTeamPage({
   const quiz = (await getQuiz(params.id, user)) as Quiz;
 
   return (
-    <div className="flex h-full w-full flex-col px-12">
-      <h3 className="pt-4 pb-8 text-3xl font-bold">
-        Team page for quiz {quiz.name}
-      </h3>
+    <div className="flex h-full w-full flex-col p-10">
+      <div className="pb-8">
+        <h3 className="text-3xl font-bold">
+          Choose the best team or create yours
+        </h3>
+        <h5 className="text-sm italic">
+          From what I heard TEUFRON is the best one
+        </h5>
+      </div>
 
       {match(quiz)
         .with(
@@ -35,6 +40,8 @@ export default async function QuizTeamPage({
           return <p>Quiz over, thanks for your participation!</p>;
         })
         .exhaustive()}
+
+      <div id="team-form-modal" />
     </div>
   );
 }

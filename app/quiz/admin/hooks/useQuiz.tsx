@@ -39,7 +39,7 @@ export default function useQuiz(quizId?: string) {
   }, [quiz]);
 
   const saveQuiz = React.useCallback(
-    (values: Pick<Quiz, 'name' | 'description'>) => {
+    (values: Pick<Quiz, 'name' | 'description' | 'maxMembersPerTeam'>) => {
       const id = uid(16);
 
       const isEdit = !!quiz;
@@ -48,7 +48,7 @@ export default function useQuiz(quizId?: string) {
       const savedQuiz: Quiz = isEdit
         ? {
             ...quiz,
-            name: values.name,
+            ...values,
             updatedAt: Date.now(),
           }
         : { ...values, id, status: 'ready', createdAt: Date.now() };
