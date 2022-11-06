@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore';
 import React from 'react';
 
+import { useAuth } from '~/shared/context/AuthContext';
 import { db, genericConverter } from '~/shared/lib/firebaseClient';
 import type { Question, Quiz, Team } from '~/types';
 
@@ -26,6 +27,7 @@ export default function QuizProvider({
   children,
   quiz: initialQuiz,
 }: React.PropsWithChildren<{ quiz: Quiz }>) {
+  const { user } = useAuth();
   const [quiz, setQuiz] = React.useState(initialQuiz);
 
   React.useEffect(() => {
@@ -50,9 +52,14 @@ export default function QuizProvider({
               ),
               (snapshot) => {
                 const teams = snapshot.docs.map((doc) => doc.data());
+                const myTeam = teams.find((team) =>
+                  team.members.some((member) => member.name === user?.name),
+                );
+
                 setQuiz((_quiz) => ({
                   ..._quiz,
                   teams,
+                  myTeam,
                 }));
               },
             ),
@@ -90,7 +97,7 @@ export default function QuizProvider({
     );
 
     return () => unsubs.forEach((unsub) => unsub());
-  }, [quiz.id]);
+  }, [quiz.id, user?.name]);
 
   return (
     <QuizContext.Provider value={{ quiz, setQuiz }}>

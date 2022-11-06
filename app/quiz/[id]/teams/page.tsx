@@ -5,7 +5,7 @@ import { getQuiz } from '~/shared/data/getQuiz';
 import { getUser } from '~/shared/data/getUser';
 import { Quiz } from '~/types';
 
-import TeamList from './components/TeamList';
+import MainContent from './components/MainContent';
 
 export default async function QuizTeamPage({
   params,
@@ -27,19 +27,7 @@ export default async function QuizTeamPage({
         </h5>
       </div>
 
-      {match(quiz)
-        .with(
-          { status: 'ready', quiz: { teams: P.union(P.nullish, []) } },
-          () => <p>no teams available</p>,
-        )
-        .with({ status: 'in progress' }, () => {
-          return <p>Quiz ongoing... can&apos;t change now</p>;
-        })
-        .with({ status: 'ready' }, () => <TeamList />)
-        .with({ status: 'finished' }, () => {
-          return <p>Quiz over, thanks for your participation!</p>;
-        })
-        .exhaustive()}
+      <MainContent />
 
       <div id="team-form-modal" />
     </div>

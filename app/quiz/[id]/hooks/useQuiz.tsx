@@ -4,6 +4,7 @@ import {
   arrayUnion,
   arrayRemove,
   setDoc,
+  deleteDoc,
 } from 'firebase/firestore';
 import React from 'react';
 import { uid } from 'uid';
@@ -11,12 +12,17 @@ import { uid } from 'uid';
 import { QuizContext } from '~/quiz/[id]/QuizContext';
 import { useAuth } from '~/shared/context/AuthContext';
 import { db, genericConverter } from '~/shared/lib/firebaseClient';
-import type { Question, Team } from '~/types';
+import type { Team, User } from '~/types';
 
 export default function useQuiz() {
   const { user } = useAuth();
   const { quiz, setQuiz } = React.useContext(QuizContext);
   const [isTeamUpdateLoading, setIsTeamUpdateLoading] = React.useState(false);
+
+  const checkIfTeamLeader = React.useCallback(
+    (team: Team) => team.leader.uid === user?.uid,
+    [user?.uid],
+  );
 
   const createTeam = React.useCallback(
     (name: string) => {
@@ -104,5 +110,51 @@ export default function useQuiz() {
     [quiz, setQuiz, user],
   );
 
-  return { quiz, isTeamUpdateLoading, createTeam, joinTeam, leaveTeam };
+  const deleteTeam = React.useCallback(
+    (team: Team) => {
+      if (!user || !checkIfTeamLeader(team)) return;
+
+      setIsTeamUpdateLoading(true);
+      return deleteDoc(doc(db, 'quizzes', quiz.id, 'teams', team.id)).then(
+        () => {
+          setIsTeamUpdateLoading(false);
+          setQuiz({
+            ...quiz,
+            teams: quiz.teams?.filter((_team) => _team.id !== team.id),
+            myTeam: undefined,
+          });
+        },
+      );
+    },
+    [checkIfTeamLeader, quiz, setQuiz, user],
+  );
+
+  const kickPlayer = React.useCallback(
+    (team: Team, kickedUser: User) => {
+      if (!user || !checkIfTeamLeader(team)) return;
+
+      setIsTeamUpdateLoading(true);
+      return updateDoc(doc(db, 'quizzes', quiz.id, 'teams', team.id), {
+        members: arrayRemove(kickedUser),
+      }).then(() => {
+        setIsTeamUpdateLoading(false);
+        setQuiz((_quiz) => ({
+          ..._quiz,
+          myTeam: kickedUser.uid === user.uid ? undefined : _quiz.myTeam,
+        }));
+      });
+    },
+    [checkIfTeamLeader, quiz, setQuiz, user],
+  );
+
+  return {
+    quiz,
+    isTeamUpdateLoading,
+    checkIfTeamLeader,
+    createTeam,
+    joinTeam,
+    leaveTeam,
+    deleteTeam,
+    kickPlayer,
+  };
 }

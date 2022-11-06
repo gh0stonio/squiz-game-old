@@ -4,12 +4,16 @@ import clsx from 'clsx';
 import React from 'react';
 
 import useQuiz from '~/quiz/[id]/hooks/useQuiz';
+import { Team } from '~/types';
 
 import TeamFormModal from './TeamFormModal';
 
 export default function TeamList() {
   const [isFormModalOpen, setIsFormModalOpen] = React.useState(false);
-  const { quiz, isTeamUpdateLoading, joinTeam, leaveTeam } = useQuiz();
+  const [editingTeam, setEditingTeam] = React.useState<Team>();
+
+  const { quiz, isTeamUpdateLoading, checkIfTeamLeader, joinTeam, leaveTeam } =
+    useQuiz();
 
   return (
     <div className="relative h-full w-full">
@@ -49,7 +53,20 @@ export default function TeamList() {
                         {team.members.map((member) => member.name).join(',')}
                       </p>
                     </div>
-                    <div className="card-actions justify-end">
+                    <div className="card-actions flex justify-end">
+                      {checkIfTeamLeader(team) && (
+                        <button
+                          onClick={() => {
+                            setEditingTeam(team);
+                            setIsFormModalOpen(true);
+                          }}
+                          className={clsx('btn-secondary btn-sm btn', {
+                            loading: isTeamUpdateLoading,
+                          })}
+                        >
+                          Admin
+                        </button>
+                      )}
                       {quiz.myTeam?.id === team.id ? (
                         <button
                           onClick={() => leaveTeam(team)}
@@ -86,11 +103,16 @@ export default function TeamList() {
 
       {isFormModalOpen && (
         <TeamFormModal
+          team={editingTeam}
           onClose={() => {
+            setEditingTeam(undefined);
             setIsFormModalOpen(false);
           }}
         />
       )}
     </div>
   );
+}
+function checkIfTeamLeader(team: Team) {
+  throw new Error('Function not implemented.');
 }

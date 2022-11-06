@@ -22,7 +22,7 @@ export default function QuestionList({
   deleteQuestion,
 }: QuestionListProps) {
   const [isFormModalOpen, setIsFormModalOpen] = React.useState(false);
-  const [question, setQuestion] = React.useState<Question>();
+  const [editingQuestion, setEditingQuestion] = React.useState<Question>();
 
   return (
     <div className="relative h-full w-full">
@@ -71,7 +71,7 @@ export default function QuestionList({
                           <HiPencil
                             className="h-8 w-8 cursor-pointer pl-3 text-gray-400"
                             onClick={() => {
-                              setQuestion(question);
+                              setEditingQuestion(question);
                               setIsFormModalOpen(true);
                             }}
                           />
@@ -102,10 +102,10 @@ export default function QuestionList({
 
       {isFormModalOpen && (
         <QuestionFormModal
-          question={question}
+          question={editingQuestion}
           onClose={(updatedQuestion) => {
             if (updatedQuestion) {
-              question
+              editingQuestion
                 ? editQuestion(updatedQuestion)
                 : addQuestion(updatedQuestion);
             }
