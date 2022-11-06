@@ -3,9 +3,9 @@ import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { cache } from 'react';
 
 import { db, genericConverter } from '~/shared/lib/firebaseClient';
-import type { Question, Quiz } from '~/types';
+import type { Question, Quiz, Team, User } from '~/types';
 
-const getQuizFromFirebase = cache(async (id: string) => {
+const getQuizFromFirebase = cache(async (id: string, user?: User) => {
   const q = doc(db, 'quizzes', `${id}`).withConverter(genericConverter<Quiz>());
 
   const docSnap = await getDoc(q);
@@ -18,14 +18,25 @@ const getQuizFromFirebase = cache(async (id: string) => {
     ),
   );
 
+  const teamsQuerySnapshot = await getDocs(
+    collection(db, 'quizzes', docSnap.id, 'teams').withConverter(
+      genericConverter<Team>(),
+    ),
+  );
+  const teams = teamsQuerySnapshot.docs.map((doc) => doc.data());
+
   return {
     ...docSnap.data(),
     questions: questionsQuerySnapshot.docs.map((doc) => doc.data()),
+    teams,
+    myTeam: teams.find((team) =>
+      team.members.some((memberName) => memberName === user?.name),
+    ),
   };
 });
 
-export function getQuiz(id?: string) {
+export function getQuiz(id?: string, user?: User) {
   if (!id) return;
 
-  return getQuizFromFirebase(id);
+  return getQuizFromFirebase(id, user);
 }

@@ -8,6 +8,13 @@ export type User = {
   photoURL?: FirebaseUser['photoURL'];
 };
 
+export interface Team {
+  id: string;
+  name: string;
+  members: User['name'][];
+  leaderUid: User['uid'];
+}
+
 export interface Question {
   id: string;
   text: string;
@@ -27,4 +34,7 @@ export interface Quiz {
   updatedAt?: number;
 
   questions?: Question[];
+
+  teams?: Team[];
+  myTeam?: Team;
 }

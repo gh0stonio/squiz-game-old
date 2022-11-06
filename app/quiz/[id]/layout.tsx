@@ -2,6 +2,7 @@ import 'server-only';
 
 import NavBar from '~/shared/components/NavBar';
 import { getQuiz } from '~/shared/data/getQuiz';
+import { getUser } from '~/shared/data/getUser';
 
 import QuizContext from './QuizContext';
 
@@ -9,7 +10,8 @@ export default async function QuizLayout({
   children,
   params,
 }: React.PropsWithChildren<{ params: { id: string } }>) {
-  const quiz = await getQuiz(params.id);
+  const user = await getUser();
+  const quiz = await getQuiz(params.id, user);
 
   if (!quiz) {
     return (

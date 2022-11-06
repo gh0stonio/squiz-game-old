@@ -70,7 +70,6 @@ export default function useQuiz(quizId?: string) {
             ).withConverter(genericConverter<Question>()),
           );
           questionsQuerySnapshot.forEach(async (questionDoc) => {
-            console.log('deleting', questionDoc.id);
             await deleteDoc(
               doc(db, 'quizzes', quiz.id, 'questions', questionDoc.id),
             );

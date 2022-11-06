@@ -12,7 +12,7 @@ import {
 import React from 'react';
 
 import { db, genericConverter } from '~/shared/lib/firebaseClient';
-import type { Question, Quiz } from '~/types';
+import type { Question, Quiz, Team } from '~/types';
 
 export const QuizContext = React.createContext<{
   quiz: Quiz;
@@ -40,6 +40,24 @@ export default function QuizProvider({
           const quizData = quizDoc.data();
           if (!quizData || quizDoc.metadata.hasPendingWrites) return;
 
+          // subscribing to quiz teams updates
+          unsubs.push(
+            onSnapshot(
+              query(
+                collection(db, 'quizzes', `${quiz.id}`, 'teams').withConverter(
+                  genericConverter<Team>(),
+                ),
+              ),
+              (snapshot) => {
+                const teams = snapshot.docs.map((doc) => doc.data());
+                setQuiz((_quiz) => ({
+                  ..._quiz,
+                  teams,
+                }));
+              },
+            ),
+          );
+
           // subscribing to quiz questions updates
           unsubs.push(
             onSnapshot(
@@ -63,7 +81,10 @@ export default function QuizProvider({
             ),
           );
 
-          setQuiz(quizData);
+          setQuiz((_quiz) => ({
+            ..._quiz,
+            ...quizData,
+          }));
         },
       ),
     );
