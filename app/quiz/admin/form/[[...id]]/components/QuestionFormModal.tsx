@@ -6,14 +6,14 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import React from 'react';
 import { uid } from 'uid';
 
-import { Question } from '~/types';
+import type { Question } from '~/types';
 
 export type QuestionFormInputs = Pick<
   Question,
   'text' | 'duration' | 'maxPoints'
 >;
 type QuestionFormProps = {
-  onClose: () => void;
+  onClose: (question?: Question) => void;
   question?: Question;
 };
 
@@ -23,6 +23,8 @@ export default function QuestionFormModal({
 }: QuestionFormProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
+  const isEdit = !!question;
+
   const {
     register,
     handleSubmit,
@@ -30,15 +32,26 @@ export default function QuestionFormModal({
     reset,
   } = useForm<QuestionFormInputs>({ defaultValues: { ...question } });
 
-  const closeModal = React.useCallback(() => {
-    reset();
-    setIsSubmitting(false);
-    onClose();
-  }, [onClose, reset]);
+  const closeModal = React.useCallback(
+    (question?: Question) => {
+      reset();
+      setIsSubmitting(false);
+      onClose(question);
+    },
+    [onClose, reset],
+  );
 
   const onSubmit: SubmitHandler<QuestionFormInputs> = async (data) => {
+    const updatedQuestion: Question = isEdit
+      ? { ...question, ...data, updatedAt: Date.now() }
+      : {
+          id: uid(16),
+          createdAt: Date.now(),
+          ...data,
+        };
+
     setIsSubmitting(true);
-    closeModal();
+    closeModal(updatedQuestion);
   };
 
   return createPortal(
@@ -103,7 +116,7 @@ export default function QuestionFormModal({
           </div>
 
           <div className="mt-10 flex items-center justify-between">
-            <button className="btn-sm btn" onClick={closeModal}>
+            <button className="btn-sm btn" onClick={() => closeModal()}>
               Cancel
             </button>
             {isSubmitting ? (

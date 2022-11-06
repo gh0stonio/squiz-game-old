@@ -15,7 +15,14 @@ type QuizFormProps = {
 type QuizFormInputs = Pick<Quiz, 'name' | 'description'>;
 
 export default function QuizForm({ quizId }: QuizFormProps) {
-  const { quiz, saveQuiz } = useQuiz(quizId);
+  const {
+    quiz,
+    saveQuiz,
+    questions,
+    addQuestion,
+    editQuestion,
+    deleteQuestion,
+  } = useQuiz(quizId);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const {
@@ -73,7 +80,12 @@ export default function QuizForm({ quizId }: QuizFormProps) {
       </div>
 
       <div className="h-full w-full pt-10">
-        <QuestionList quizId={quiz?.id} />
+        <QuestionList
+          questions={questions}
+          addQuestion={addQuestion}
+          editQuestion={editQuestion}
+          deleteQuestion={deleteQuestion}
+        />
       </div>
 
       <div className="mt-14 flex items-center justify-between">

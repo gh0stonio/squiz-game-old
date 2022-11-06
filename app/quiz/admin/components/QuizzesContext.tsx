@@ -7,7 +7,7 @@ import React from 'react';
 import { uid } from 'uid';
 
 import { db, genericConverter } from '~/shared/lib/firebaseClient';
-import { Quiz } from '~/types';
+import { Question, Quiz } from '~/types';
 
 const QuizzesContext = React.createContext<{
   quizzes: Quiz[];
@@ -20,21 +20,26 @@ const QuizzesContext = React.createContext<{
 export function useQuizzes() {
   const { quizzes, setQuizzes } = React.useContext(QuizzesContext);
 
-  function deleteQuiz(quizId: Quiz['id']) {
-    deleteDoc(doc(db, 'quizzes', quizId)).then(
-      () => {
-        setQuizzes((_quizzes) => _quizzes.filter((quiz) => quiz.id !== quizId));
-        toast.success('Quiz deleted !', {
-          theme: 'colored',
-        });
-      },
-      () => {
-        toast.error('Failed deleting the Quiz !', {
-          theme: 'colored',
-        });
-      },
-    );
-  }
+  const deleteQuiz = React.useCallback(
+    (quizId: Quiz['id']) => {
+      deleteDoc(doc(db, 'quizzes', quizId)).then(
+        () => {
+          setQuizzes((_quizzes) =>
+            _quizzes.filter((quiz) => quiz.id !== quizId),
+          );
+          toast.success('Quiz deleted !', {
+            theme: 'colored',
+          });
+        },
+        () => {
+          toast.error('Failed deleting the Quiz !', {
+            theme: 'colored',
+          });
+        },
+      );
+    },
+    [setQuizzes],
+  );
 
   return { quizzes, setQuizzes, deleteQuiz };
 }
@@ -43,69 +48,94 @@ export function useQuiz(quizId?: string) {
   const router = useRouter();
   const { quizzes, setQuizzes } = useQuizzes();
 
-  const quiz = React.useMemo(
-    () => quizzes.find((quiz) => quiz.id === quizId),
-    [quizId, quizzes],
+  const [quiz, setQuiz] = React.useState<Quiz | undefined>(
+    quizzes.find((quiz) => quiz.id === quizId),
   );
+  React.useEffect(() => {
+    setQuiz(quizzes.find((quiz) => quiz.id === quizId));
+  }, [quizId, quizzes]);
 
-  function saveQuiz(values: Pick<Quiz, 'name' | 'description'>) {
-    const id = uid(16);
+  const [questions, setQuestions] = React.useState<Question[]>(
+    quiz?.questions || [],
+  );
+  React.useEffect(() => {
+    if (quiz) setQuestions(quiz.questions || []);
+  }, [quiz]);
 
-    const isEdit = !!quiz;
-    const save = isEdit ? updateDoc : setDoc;
+  const saveQuiz = React.useCallback(
+    (values: Pick<Quiz, 'name' | 'description'>) => {
+      const id = uid(16);
 
-    const savedQuiz: Quiz = isEdit
-      ? { ...quiz, ...values, updatedAt: Date.now() }
-      : { ...values, id, status: 'ready', createdAt: Date.now() };
+      const isEdit = !!quiz;
+      const save = isEdit ? updateDoc : setDoc;
 
-    return (
-      save(
+      const savedQuiz: Quiz = isEdit
+        ? {
+            ...quiz,
+            questions,
+            name: values.name,
+            description: values.description,
+            updatedAt: Date.now(),
+          }
+        : { ...values, id, questions, status: 'ready', createdAt: Date.now() };
+
+      return save(
         doc(db, 'quizzes', quiz?.id || id).withConverter(
           genericConverter<Quiz>(),
         ),
         savedQuiz,
-      )
-        // .then(() =>
-        //   Promise.all(
-        //     questions.map((question) =>
-        //       setDoc(
-        //         doc(db, 'quizzes', id, 'questions', question.id).withConverter(
-        //           questionConverter,
-        //         ),
-        //         question,
-        //       ),
-        //     ),
-        //   ),
-        // )
-        .then(
-          () => {
-            router.push('/quiz/admin');
+      ).then(
+        () => {
+          router.push('/quiz/admin');
 
-            setQuizzes((_quizzes) => {
-              if (isEdit) {
-                return _quizzes.map((_quiz) =>
-                  _quiz.id === quiz.id ? savedQuiz : _quiz,
-                );
-              }
+          setQuizzes((_quizzes) => {
+            if (isEdit) {
+              return _quizzes.map((_quiz) =>
+                _quiz.id === quiz.id ? savedQuiz : _quiz,
+              );
+            }
 
-              return [..._quizzes, savedQuiz];
-            });
+            return [..._quizzes, savedQuiz];
+          });
 
-            toast.success(`Quiz ${isEdit ? 'updated' : 'added'} !`, {
-              theme: 'colored',
-            });
-          },
-          (e) => {
-            console.error(e);
-            toast.error(`Failed ${isEdit ? 'updating' : 'adding'} the Quiz !`, {
-              theme: 'colored',
-            });
-          },
-        )
+          toast.success(`Quiz ${isEdit ? 'updated' : 'added'} !`, {
+            theme: 'colored',
+          });
+        },
+        () => {
+          toast.error(`Failed ${isEdit ? 'updating' : 'adding'} the Quiz !`, {
+            theme: 'colored',
+          });
+        },
+      );
+    },
+    [questions, quiz, router, setQuizzes],
+  );
+
+  const addQuestion = React.useCallback((question: Question) => {
+    setQuestions((questions) => [...questions, question]);
+  }, []);
+  const editQuestion = React.useCallback((question: Question) => {
+    setQuestions((questions) =>
+      questions.map((_question) =>
+        _question.id === question.id ? question : _question,
+      ),
     );
-  }
+  }, []);
+  const deleteQuestion = React.useCallback((question: Question) => {
+    setQuestions((questions) =>
+      questions.filter((_question) => _question.id !== question.id),
+    );
+  }, []);
 
-  return { quiz, saveQuiz };
+  return {
+    quiz,
+    saveQuiz,
+    questions,
+    addQuestion,
+    editQuestion,
+    deleteQuestion,
+  };
 }
 
 export default function QuizzesProvider({

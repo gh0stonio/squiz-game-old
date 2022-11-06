@@ -10,12 +10,18 @@ import type { Question, Quiz } from '~/types';
 import QuestionFormModal from './QuestionFormModal';
 
 interface QuestionListProps {
-  quizId?: Quiz['id'];
+  questions: Question[];
+  addQuestion: (question: Question) => void;
+  editQuestion: (question: Question) => void;
+  deleteQuestion: (question: Question) => void;
 }
 
-export default function QuestionList({ quizId }: QuestionListProps) {
-  const { quiz } = useQuiz(quizId);
-
+export default function QuestionList({
+  questions,
+  addQuestion,
+  editQuestion,
+  deleteQuestion,
+}: QuestionListProps) {
   const [isFormModalOpen, setIsFormModalOpen] = React.useState(false);
   const [question, setQuestion] = React.useState<Question>();
 
@@ -36,8 +42,7 @@ export default function QuestionList({ quizId }: QuestionListProps) {
       <table className="table w-full">
         <thead>
           <tr className="h-12 [&>th]:bg-gray-200">
-            <th className="w-1/12"></th>
-            <th className="w-6/12">Text</th>
+            <th className="w-7/12">Text</th>
             <th className="w-1/12">Duration</th>
             <th className="w-1/12">Max Points</th>
             <th className="w-1/12 text-end">Created At</th>
@@ -46,11 +51,10 @@ export default function QuestionList({ quizId }: QuestionListProps) {
           </tr>
         </thead>
         <tbody>
-          {quiz?.questions && quiz.questions.length > 0 ? (
-            quiz.questions.map((question, index) => {
+          {questions.length > 0 ? (
+            questions.map((question) => {
               return (
                 <tr key={question.id} className="h-12">
-                  <td>{index + 1}</td>
                   <td>{question.text}</td>
                   <td className="text-center">{question.duration}</td>
                   <td className="text-center">{question.maxPoints}</td>
@@ -73,7 +77,7 @@ export default function QuestionList({ quizId }: QuestionListProps) {
                       <HiTrash
                         className="h-8 w-8 cursor-pointer pl-3 text-gray-400"
                         onClick={() => {
-                          alert('delete me');
+                          deleteQuestion(question);
                         }}
                       />
                     </div>
@@ -96,7 +100,13 @@ export default function QuestionList({ quizId }: QuestionListProps) {
       {isFormModalOpen && (
         <QuestionFormModal
           question={question}
-          onClose={() => {
+          onClose={(updatedQuestion) => {
+            if (updatedQuestion) {
+              question
+                ? editQuestion(updatedQuestion)
+                : addQuestion(updatedQuestion);
+            }
+
             setIsFormModalOpen(false);
           }}
         />
