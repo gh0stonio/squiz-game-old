@@ -60,7 +60,7 @@ export default function QuizList() {
                         onClick={() => {
                           const url = new URL(window.location.href);
                           navigator.clipboard.writeText(
-                            `${url.hostname}:${url.port}/quiz/${quiz.id}/lobby`,
+                            `https://${url.hostname}/login?referer=/quiz/${quiz.id}/lobby`,
                           );
                         }}
                       />
