@@ -17,6 +17,8 @@ async function updateTokenCookie(user: FirebaseUser) {
   setCookie(null, 'id_token', idToken, {
     maxAge: 60 * 60, // 1 hour
     path: '/',
+    sameSite: 'None',
+    secure: true,
   });
 }
 let autoRenewOn = false;
@@ -32,6 +34,8 @@ function clearTokenCookie() {
   setCookie(null, 'id_token', '', {
     maxAge: 0,
     path: '/',
+    sameSite: 'None',
+    secure: true,
   });
 }
 

@@ -5,6 +5,7 @@ import type { NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const idTokenCookie = request.cookies.get('id_token');
 
+  console.log(request.cookies.getAll());
   if (!idTokenCookie) {
     return NextResponse.redirect(
       new URL(`/login?referer=${request.nextUrl.pathname}`, request.url),
