@@ -2,13 +2,10 @@
 import 'client-only';
 
 import useQuiz from '~/quiz/admin/hooks/useQuiz';
-import { type Quiz } from '~/types';
 
-type QuizFormTitleProps = {
-  quizId?: Quiz['id'];
-};
-export default function QuizFormTitle({ quizId }: QuizFormTitleProps) {
-  const { quiz } = useQuiz(quizId);
+interface QuizFormTitleProps {}
+export default function QuizFormTitle({}: QuizFormTitleProps) {
+  const { quiz } = useQuiz();
 
   return (
     <h3 className="py-3 text-xl font-bold">

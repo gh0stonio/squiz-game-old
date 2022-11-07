@@ -1,5 +1,12 @@
 import 'server-only';
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+} from 'firebase/firestore';
 import { cache } from 'react';
 
 import { db, genericConverter } from '~/shared/lib/firebaseClient';
@@ -13,15 +20,17 @@ const getQuizFromFirebase = cache(async (id: string, user?: User) => {
   if (!docSnap.exists()) return;
 
   const questionsQuerySnapshot = await getDocs(
-    collection(db, 'quizzes', docSnap.id, 'questions').withConverter(
-      genericConverter<Question>(),
-    ),
+    query(
+      collection(db, 'quizzes', docSnap.id, 'questions'),
+      orderBy('createdAt'),
+    ).withConverter(genericConverter<Question>()),
   );
 
   const teamsQuerySnapshot = await getDocs(
-    collection(db, 'quizzes', docSnap.id, 'teams').withConverter(
-      genericConverter<Team>(),
-    ),
+    query(
+      collection(db, 'quizzes', docSnap.id, 'teams'),
+      orderBy('createdAt'),
+    ).withConverter(genericConverter<Team>()),
   );
   const teams = teamsQuerySnapshot.docs.map((doc) => doc.data());
 

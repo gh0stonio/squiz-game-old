@@ -2,6 +2,7 @@
 import 'client-only';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { HiOutlineUser } from 'react-icons/hi';
 import React from 'react';
 
@@ -11,16 +12,19 @@ import { useAuth } from '~/shared/context/AuthContext';
 import Logo from '../../../public/logo.png';
 
 export default function NavBar() {
+  const pathName = usePathname();
   const { quiz } = useQuiz();
   const { user, logOut, logIn } = useAuth();
 
+  const isAdminPage = pathName?.startsWith('/quiz/admin');
+
   const subTitle = React.useMemo(() => {
-    if (quiz) {
+    if (quiz && !isAdminPage) {
       return quiz.name;
     }
 
     return 'Admin';
-  }, [quiz]);
+  }, [quiz, isAdminPage]);
 
   return (
     <div className="navbar my-10 w-11/12 rounded-xl bg-gray-100 px-4">
@@ -33,7 +37,7 @@ export default function NavBar() {
         </div>
       </div>
 
-      {quiz && user && (
+      {quiz && user && !isAdminPage && (
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal p-0">
             <li>

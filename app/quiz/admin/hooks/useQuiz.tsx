@@ -1,46 +1,56 @@
 'use client';
 import 'client-only';
 import {
-  collection,
-  deleteDoc,
+  updateDoc,
+  setDoc,
   doc,
   getDocs,
-  orderBy,
   query,
-  setDoc,
-  updateDoc,
+  collection,
+  orderBy,
+  deleteDoc,
 } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import React from 'react';
 import { uid } from 'uid';
 
 import { db, genericConverter } from '~/shared/lib/firebaseClient';
-import type { Question, Quiz } from '~/types';
+import type { Quiz, Question } from '~/types';
 
-import useQuizzes from './useQuizzes';
+import { QuizContext } from '../components/QuizContext';
 
-export default function useQuiz(quizId?: string) {
-  const router = useRouter();
-  const { quizzes, setQuizzes } = useQuizzes();
+export default function useQuiz() {
+  const { quiz, setQuiz, questions, setQuestions } =
+    React.useContext(QuizContext);
 
-  const [quiz, setQuiz] = React.useState<Quiz | undefined>(
-    quizzes.find((quiz) => quiz.id === quizId),
+  const addQuestion = React.useCallback(
+    (question: Question) => {
+      setQuestions((_questions) => [..._questions, question]);
+    },
+    [setQuestions],
   );
-  React.useEffect(() => {
-    setQuiz(quizzes.find((quiz) => quiz.id === quizId));
-  }, [quizId, quizzes]);
-
-  const [questions, setQuestions] = React.useState<Question[]>(
-    quiz?.questions || [],
+  const editQuestion = React.useCallback(
+    (question: Question) => {
+      setQuestions((_questions) =>
+        _questions.map((_question) =>
+          _question.id === question.id ? question : _question,
+        ),
+      );
+    },
+    [setQuestions],
   );
-  React.useEffect(() => {
-    if (quiz) setQuestions(quiz.questions || []);
-  }, [quiz]);
+  const deleteQuestion = React.useCallback(
+    (question: Question) => {
+      setQuestions((_questions) =>
+        _questions.filter((_question) => _question.id !== question.id),
+      );
+    },
+    [setQuestions],
+  );
 
   const saveQuiz = React.useCallback(
     (values: Pick<Quiz, 'name' | 'description' | 'maxMembersPerTeam'>) => {
-      const id = uid(16);
+      const id = quiz?.id || uid(16);
 
       const isEdit = !!quiz;
       const save = isEdit ? updateDoc : setDoc;
@@ -55,9 +65,7 @@ export default function useQuiz(quizId?: string) {
       delete savedQuiz.questions;
 
       return save(
-        doc(db, 'quizzes', quiz?.id || id).withConverter(
-          genericConverter<Quiz>(),
-        ),
+        doc(db, 'quizzes', id).withConverter(genericConverter<Quiz>()),
         savedQuiz,
       )
         .then(async () => {
@@ -93,17 +101,7 @@ export default function useQuiz(quizId?: string) {
         )
         .then(
           () => {
-            if (!isEdit) router.push('/quiz/admin');
-
-            setQuizzes((_quizzes) => {
-              if (isEdit) {
-                return _quizzes.map((_quiz) =>
-                  _quiz.id === quiz.id ? { ...savedQuiz, questions } : _quiz,
-                );
-              }
-
-              return [..._quizzes, { ...savedQuiz, questions }];
-            });
+            setQuiz((_quiz) => ({ ...savedQuiz, questions }));
 
             toast.success(`Quiz ${isEdit ? 'updated' : 'added'} !`, {
               theme: 'colored',
@@ -116,24 +114,8 @@ export default function useQuiz(quizId?: string) {
           },
         );
     },
-    [questions, quiz, router, setQuizzes],
+    [questions, quiz, setQuiz],
   );
-
-  const addQuestion = React.useCallback((question: Question) => {
-    setQuestions((questions) => [...questions, question]);
-  }, []);
-  const editQuestion = React.useCallback((question: Question) => {
-    setQuestions((questions) =>
-      questions.map((_question) =>
-        _question.id === question.id ? question : _question,
-      ),
-    );
-  }, []);
-  const deleteQuestion = React.useCallback((question: Question) => {
-    setQuestions((questions) =>
-      questions.filter((_question) => _question.id !== question.id),
-    );
-  }, []);
 
   return {
     quiz,

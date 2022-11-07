@@ -6,6 +6,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import React from 'react';
 import { uid } from 'uid';
 
+import useQuiz from '~/quiz/admin/hooks/useQuiz';
 import type { Question } from '~/types';
 
 export type QuestionFormInputs = Pick<
@@ -13,7 +14,7 @@ export type QuestionFormInputs = Pick<
   'text' | 'answer' | 'duration' | 'maxPoints'
 >;
 type QuestionFormProps = {
-  onClose: (question?: Question) => void;
+  onClose: () => void;
   question?: Question;
 };
 
@@ -21,6 +22,7 @@ export default function QuestionFormModal({
   onClose,
   question,
 }: QuestionFormProps) {
+  const { addQuestion, editQuestion } = useQuiz();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const isEdit = !!question;
@@ -32,14 +34,11 @@ export default function QuestionFormModal({
     reset,
   } = useForm<QuestionFormInputs>({ defaultValues: { ...question } });
 
-  const closeModal = React.useCallback(
-    (question?: Question) => {
-      reset();
-      setIsSubmitting(false);
-      onClose(question);
-    },
-    [onClose, reset],
-  );
+  const closeModal = React.useCallback(() => {
+    reset();
+    setIsSubmitting(false);
+    onClose();
+  }, [onClose, reset]);
 
   const onSubmit: SubmitHandler<QuestionFormInputs> = async (data) => {
     const updatedQuestion: Question = isEdit
@@ -50,9 +49,11 @@ export default function QuestionFormModal({
           ...data,
         };
 
+    isEdit ? editQuestion(updatedQuestion) : addQuestion(updatedQuestion);
+
     reset();
     setIsSubmitting(true);
-    closeModal(updatedQuestion);
+    closeModal();
   };
 
   return createPortal(
@@ -134,11 +135,11 @@ export default function QuestionFormModal({
           </div>
 
           <div className="mt-10 flex items-center justify-between">
-            <button className="btn-sm btn" onClick={() => closeModal()}>
+            <button className="btn-sm btn" onClick={closeModal}>
               Cancel
             </button>
             {isSubmitting ? (
-              <button className="btn-disabled loading btn-square btn-sm btn" />
+              <button className="loading btn-disabled btn-sm btn-square btn" />
             ) : (
               <input
                 type="submit"

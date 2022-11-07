@@ -10,20 +10,11 @@ import { Quiz } from '~/types';
 
 import QuestionList from './QuestionList';
 
-type QuizFormProps = {
-  quizId?: Quiz['id'];
-};
+type QuizFormProps = {};
 type QuizFormInputs = Pick<Quiz, 'name' | 'description' | 'maxMembersPerTeam'>;
 
-export default function QuizForm({ quizId }: QuizFormProps) {
-  const {
-    quiz,
-    saveQuiz,
-    questions,
-    addQuestion,
-    editQuestion,
-    deleteQuestion,
-  } = useQuiz(quizId);
+export default function QuizForm({}: QuizFormProps) {
+  const { quiz, saveQuiz } = useQuiz();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const {
@@ -96,19 +87,14 @@ export default function QuizForm({ quizId }: QuizFormProps) {
           </div>
         </div>
 
-        <QuestionList
-          questions={questions}
-          addQuestion={addQuestion}
-          editQuestion={editQuestion}
-          deleteQuestion={deleteQuestion}
-        />
+        <QuestionList />
 
         <div className="flex items-center justify-between pt-10">
           <Link href="/quiz/admin">
             <button className="btn-sm btn">Go back</button>
           </Link>
           {isSubmitting ? (
-            <button className="btn-disabled loading btn-sm btn-square btn" />
+            <button className="loading btn-disabled btn-sm btn-square btn" />
           ) : (
             <button
               type="submit"

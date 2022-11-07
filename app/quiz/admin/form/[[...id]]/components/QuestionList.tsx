@@ -4,23 +4,14 @@ import { format } from 'date-fns';
 import { HiTrash, HiPencil } from 'react-icons/hi';
 import React from 'react';
 
+import useQuiz from '~/quiz/admin/hooks/useQuiz';
 import type { Question } from '~/types';
 
 import QuestionFormModal from './QuestionFormModal';
 
-interface QuestionListProps {
-  questions: Question[];
-  addQuestion: (question: Question) => void;
-  editQuestion: (question: Question) => void;
-  deleteQuestion: (question: Question) => void;
-}
-
-export default function QuestionList({
-  questions,
-  addQuestion,
-  editQuestion,
-  deleteQuestion,
-}: QuestionListProps) {
+interface QuestionListProps {}
+export default function QuestionList({}: QuestionListProps) {
+  const { questions, deleteQuestion } = useQuiz();
   const [isFormModalOpen, setIsFormModalOpen] = React.useState(false);
   const [editingQuestion, setEditingQuestion] = React.useState<Question>();
 
@@ -103,13 +94,7 @@ export default function QuestionList({
       {isFormModalOpen && (
         <QuestionFormModal
           question={editingQuestion}
-          onClose={(updatedQuestion) => {
-            if (updatedQuestion) {
-              editingQuestion
-                ? editQuestion(updatedQuestion)
-                : addQuestion(updatedQuestion);
-            }
-
+          onClose={() => {
             setIsFormModalOpen(false);
           }}
         />
