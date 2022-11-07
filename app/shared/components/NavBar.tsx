@@ -12,7 +12,7 @@ import Logo from '../../../public/logo.png';
 
 export default function NavBar() {
   const { quiz } = useQuiz();
-  const { user, logOut } = useAuth();
+  const { user, logOut, logIn } = useAuth();
 
   const subTitle = React.useMemo(() => {
     if (quiz) {
@@ -33,7 +33,7 @@ export default function NavBar() {
         </div>
       </div>
 
-      {quiz && (
+      {quiz && user && (
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal p-0">
             <li>
@@ -70,9 +70,15 @@ export default function NavBar() {
               tabIndex={0}
               className="dropdown-content menu rounded-box menu-compact mt-3 w-52 bg-gray-100 p-2 shadow"
             >
-              <li>
-                <button onClick={logOut}>Sign Out</button>
-              </li>
+              {user ? (
+                <li>
+                  <button onClick={logOut}>Sign Out</button>
+                </li>
+              ) : (
+                <li>
+                  <button onClick={logIn}>Sign In</button>
+                </li>
+              )}
             </ul>
           </div>
         </div>

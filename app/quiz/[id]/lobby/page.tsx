@@ -22,7 +22,7 @@ export default async function QuizLobbyPage({
         <h3 className="text-3xl font-bold">
           Let&apos;s play to the quiz {quiz.name}!
         </h3>
-        <p className="italic">{quiz.description}</p>
+        <p className="text-sm italic">{quiz.description}</p>
       </div>
 
       <MainContent />

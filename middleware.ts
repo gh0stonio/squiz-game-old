@@ -3,16 +3,15 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  const idTokenCookie = request.cookies.get('id_token');
-
-  console.log(request.cookies.getAll());
-  if (!idTokenCookie) {
-    return NextResponse.redirect(
-      new URL(`/login?referer=${request.nextUrl.pathname}`, request.url),
-    );
-  }
-
   if (request.nextUrl.pathname.startsWith('/quiz/admin')) {
+    const idTokenCookie = request.cookies.get('id_token');
+
+    if (!idTokenCookie) {
+      return NextResponse.redirect(
+        new URL(`/login?referer=${request.nextUrl.pathname}`, request.url),
+      );
+    }
+
     const admins = process.env.NEXT_PUBLIC_ROOT_ADMINS?.split(';');
     const decodedToken = jwt_decode(idTokenCookie.value) as { email: string };
 

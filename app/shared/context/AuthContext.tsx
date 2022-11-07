@@ -25,6 +25,8 @@ let autoRenewOn = false;
 async function autoRenewTokenCookie(user: FirebaseUser) {
   if (autoRenewOn) return;
 
+  updateTokenCookie(user);
+
   autoRenewOn = true;
   setInterval(() => {
     updateTokenCookie(user);
@@ -42,6 +44,7 @@ function clearTokenCookie() {
 export function useAuth() {
   const router = useRouter();
   const params = useSearchParams();
+  const pathname = usePathname();
 
   const user = React.useContext(AuthContext);
 
@@ -66,7 +69,7 @@ export function useAuth() {
 
     clearTokenCookie();
 
-    router.push('/login');
+    router.push(`/login?referer=${pathname}`);
   }
 
   return { user, logIn, logOut };
@@ -77,11 +80,14 @@ export default function AuthProvider({
   userFromServerAuth,
 }: React.PropsWithChildren<{ userFromServerAuth?: User }>) {
   const pathname = usePathname();
+  const params = useSearchParams();
+  const referer = params.get('referer');
+
   const [user, setUser] = React.useState<User | undefined>(userFromServerAuth);
 
   React.useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      if (!firebaseUser || pathname === '/login') {
+      if (!firebaseUser || referer === '/quiz/admin') {
         setUser(undefined);
         clearTokenCookie();
 
