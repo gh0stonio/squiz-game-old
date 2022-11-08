@@ -23,6 +23,7 @@ export interface Question {
   maxPoints: number;
   createdAt: number;
   updatedAt?: number;
+  isDone: boolean;
 }
 
 export interface Quiz {

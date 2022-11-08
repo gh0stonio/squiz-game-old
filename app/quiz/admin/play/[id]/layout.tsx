@@ -3,13 +3,13 @@ import 'server-only';
 import QuizContext from '~/quiz/admin/components/QuizContext';
 import { getQuiz } from '~/shared/data/getQuiz';
 
-export default async function AdminFormLayout({
+export default async function AdminPlayLayout({
   children,
   params,
 }: React.PropsWithChildren<{
-  params: { id?: string[] };
+  params: { id?: string };
 }>) {
-  const quizId = (params.id || [])[0];
+  const quizId = params.id;
   const quiz = await getQuiz(quizId);
 
   return (

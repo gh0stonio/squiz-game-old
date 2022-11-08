@@ -45,6 +45,7 @@ export default function QuestionFormModal({
       ? { ...question, ...data, updatedAt: Date.now() }
       : {
           id: uid(16),
+          isDone: false,
           createdAt: Date.now(),
           ...data,
         };

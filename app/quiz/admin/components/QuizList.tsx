@@ -3,6 +3,7 @@ import 'client-only';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import { BsPlayFill } from 'react-icons/bs';
 import { HiTrash, HiPencil, HiLink } from 'react-icons/hi';
 import React from 'react';
 
@@ -55,6 +56,12 @@ export default function QuizList() {
                   </td>
                   <td>
                     <div className="flex justify-end">
+                      <BsPlayFill
+                        className="h-8 w-9 cursor-pointer pl-3 text-gray-400"
+                        onClick={() => {
+                          router.push(`/quiz/admin/play/${quiz.id}`);
+                        }}
+                      />
                       <HiLink
                         className="h-8 w-8 cursor-pointer pl-3 text-gray-400"
                         onClick={() => {

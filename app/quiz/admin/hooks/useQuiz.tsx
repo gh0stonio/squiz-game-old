@@ -23,6 +23,10 @@ export default function useQuiz() {
   const { quiz, setQuiz, questions, setQuestions } =
     React.useContext(QuizContext);
 
+  const currentQuestion = React.useMemo(() => {
+    return (questions.filter((question) => !question.isDone) || [])[0];
+  }, [questions]);
+
   const addQuestion = React.useCallback(
     (question: Question) => {
       setQuestions((_questions) => [..._questions, question]);
@@ -62,7 +66,9 @@ export default function useQuiz() {
             updatedAt: Date.now(),
           }
         : { ...values, id, status: 'ready', createdAt: Date.now() };
+
       delete savedQuiz.questions;
+      delete savedQuiz.teams;
 
       return save(
         doc(db, 'quizzes', id).withConverter(genericConverter<Quiz>()),
@@ -117,6 +123,35 @@ export default function useQuiz() {
     [questions, quiz, setQuiz],
   );
 
+  const updateQuiz = React.useCallback(
+    async (updatedQuiz: Quiz) => {
+      delete updatedQuiz.questions;
+      delete updatedQuiz.teams;
+
+      await updateDoc(
+        doc(db, 'quizzes', updatedQuiz.id).withConverter(
+          genericConverter<Quiz>(),
+        ),
+        updatedQuiz,
+      );
+
+      setQuiz(updatedQuiz);
+    },
+    [setQuiz],
+  );
+  const start = React.useCallback(() => {
+    if (!quiz) return;
+    updateQuiz({ ...quiz, status: 'in progress' });
+  }, [quiz, updateQuiz]);
+  const reset = React.useCallback(() => {
+    if (!quiz) return;
+    updateQuiz({ ...quiz, status: 'ready' });
+  }, [quiz, updateQuiz]);
+  const end = React.useCallback(() => {
+    if (!quiz) return;
+    updateQuiz({ ...quiz, status: 'finished' });
+  }, [quiz, updateQuiz]);
+
   return {
     quiz,
     saveQuiz,
@@ -124,5 +159,9 @@ export default function useQuiz() {
     addQuestion,
     editQuestion,
     deleteQuestion,
+    currentQuestion,
+    start,
+    reset,
+    end,
   };
 }
