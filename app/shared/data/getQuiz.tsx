@@ -27,10 +27,9 @@ const getQuizFromFirebase = cache(async (id: string, user?: User) => {
   );
 
   const teamsQuerySnapshot = await getDocs(
-    query(
-      collection(db, 'quizzes', docSnap.id, 'teams'),
-      orderBy('createdAt'),
-    ).withConverter(genericConverter<Team>()),
+    collection(db, 'quizzes', docSnap.id, 'teams').withConverter(
+      genericConverter<Team>(),
+    ),
   );
   const teams = teamsQuerySnapshot.docs.map((doc) => doc.data());
 

@@ -1,6 +1,5 @@
 'use client';
 import 'client-only';
-import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -27,10 +26,12 @@ export default function NavBar() {
     return 'Admin';
   }, [quiz, isAdminPage]);
 
-  const shouldShow = React.useMemo(
-    () => quiz && user && !isAdminPage,
-    [isAdminPage, quiz, user],
-  );
+  const adminQuizPath = React.useMemo(() => {
+    const parts = pathName?.split('/') || [];
+    parts.pop();
+
+    return parts.join('/');
+  }, [pathName]);
 
   return (
     <div className="navbar my-10 w-11/12 rounded-xl bg-gray-100 px-4">
@@ -43,13 +44,29 @@ export default function NavBar() {
         </div>
       </div>
 
-      <div className={clsx('navbar-center lg:flex', { hidden: !shouldShow })}>
+      <div className="navbar-center lg:flex">
         <ul className="menu menu-horizontal p-0">
           <li>
-            <Link href={`/quiz/${quiz.id}/lobby`}>Lobby</Link>
+            <Link
+              href={
+                isAdminPage
+                  ? `${adminQuizPath}/lobby`
+                  : `/quiz/${quiz.id}/lobby`
+              }
+            >
+              Lobby
+            </Link>
           </li>
           <li>
-            <Link href={`/quiz/${quiz.id}/teams`}>Teams</Link>
+            <Link
+              href={
+                isAdminPage
+                  ? `${adminQuizPath}/teams`
+                  : `/quiz/${quiz.id}/teams`
+              }
+            >
+              Teams
+            </Link>
           </li>
         </ul>
       </div>

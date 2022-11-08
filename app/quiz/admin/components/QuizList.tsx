@@ -59,7 +59,7 @@ export default function QuizList() {
                       <BsPlayFill
                         className="h-8 w-9 cursor-pointer pl-3 text-gray-400"
                         onClick={() => {
-                          router.push(`/quiz/admin/play/${quiz.id}`);
+                          router.push(`/quiz/admin/play/${quiz.id}/lobby`);
                         }}
                       />
                       <HiLink
