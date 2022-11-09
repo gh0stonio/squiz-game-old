@@ -1,8 +1,17 @@
 'use client';
 import 'client-only';
+import {
+  collection,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  Unsubscribe,
+} from 'firebase/firestore';
 import React from 'react';
 
-import type { Question, Quiz } from '~/types';
+import { db, genericConverter } from '~/shared/lib/firebaseClient';
+import type { Question, Quiz, Team } from '~/types';
 
 export const QuizContext = React.createContext<{
   quiz?: Quiz;
@@ -24,6 +33,69 @@ export default function QuizProvider({
   const [questions, setQuestions] = React.useState<Question[]>(
     quiz?.questions || [],
   );
+
+  React.useEffect(() => {
+    const unsubs: Unsubscribe[] = [];
+
+    if (!quiz) return;
+
+    unsubs.push(
+      onSnapshot(
+        doc(db, 'quizzes', `${quiz.id}`).withConverter(
+          genericConverter<Quiz>(),
+        ),
+        (quizDoc) => {
+          const quizData = quizDoc.data();
+          if (!quizData || quizDoc.metadata.hasPendingWrites) return;
+
+          // subscribing to quiz teams updates
+          unsubs.push(
+            onSnapshot(
+              query(
+                collection(db, 'quizzes', `${quiz.id}`, 'teams').withConverter(
+                  genericConverter<Team>(),
+                ),
+              ),
+              (snapshot) => {
+                setQuiz({
+                  ...quiz,
+                  teams: snapshot.docs.map((doc) => doc.data()),
+                });
+              },
+            ),
+          );
+
+          // subscribing to quiz questions updates
+          unsubs.push(
+            onSnapshot(
+              query(
+                collection(
+                  db,
+                  'quizzes',
+                  `${quiz.id}`,
+                  'questions',
+                ).withConverter(genericConverter<Question>()),
+                orderBy('createdAt'),
+              ),
+              (snapshot) => {
+                setQuiz({
+                  ...quiz,
+                  questions: snapshot.docs.map((doc) => doc.data()),
+                });
+              },
+            ),
+          );
+
+          setQuiz({
+            ...quiz,
+            ...quizData,
+          });
+        },
+      ),
+    );
+
+    return () => unsubs.forEach((unsub) => unsub());
+  }, []);
 
   return (
     <QuizContext.Provider value={{ quiz, setQuiz, questions, setQuestions }}>

@@ -23,7 +23,8 @@ export interface Question {
   maxPoints: number;
   createdAt: number;
   updatedAt?: number;
-  isDone: boolean;
+  status: 'ready' | 'in progress' | 'done';
+  startedAt?: number;
 }
 
 export interface Quiz {
@@ -35,6 +36,7 @@ export interface Quiz {
   updatedAt?: number;
 
   questions?: Question[];
+  ongoingQuestion?: Question;
 
   maxMembersPerTeam: number;
   teams?: Team[];

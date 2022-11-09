@@ -1,5 +1,6 @@
 'use client';
 import 'client-only';
+import { format } from 'date-fns';
 import { CgArrowTopRight } from 'react-icons/cg';
 import { match, P } from 'ts-pattern';
 
@@ -26,8 +27,23 @@ export default function MainContent() {
     .with({ status: 'ready' }, () => {
       return <p>Please wait for the quiz to start</p>;
     })
-    .with({ status: 'in progress' }, () => {
-      return <p>Quiz ongoing... wait for next question</p>;
+    .with(
+      {
+        status: 'in progress',
+        ongoingQuestion: P.optional(P.nullish),
+      },
+      () => {
+        return <p>Quiz ongoing... wait for next question</p>;
+      },
+    )
+    .with({ status: 'in progress' }, ({ ongoingQuestion }) => {
+      return (
+        <p>
+          Question ongoing, {ongoingQuestion?.text} -{' '}
+          {ongoingQuestion?.startedAt &&
+            format(new Date(ongoingQuestion.startedAt), 'MM/dd/yyyy hh:mm')}
+        </p>
+      );
     })
     .with({ status: 'finished' }, () => {
       return <p>Quiz over, thanks for your participation!</p>;

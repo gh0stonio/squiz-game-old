@@ -1,6 +1,5 @@
 'use client';
 import 'client-only';
-import { data } from 'autoprefixer';
 import {
   collection,
   doc,
@@ -79,10 +78,18 @@ export default function QuizProvider({
               ),
               (snapshot) => {
                 const questions = snapshot.docs.map((doc) => doc.data());
+                const ongoingQuestion = questions.find(
+                  (_question) => _question.status === 'in progress',
+                );
 
                 setQuiz((_quiz) => ({
                   ..._quiz,
-                  questions,
+                  ongoingQuestion: ongoingQuestion
+                    ? {
+                        ...ongoingQuestion,
+                        answer: 'really ? stop trying to cheat',
+                      }
+                    : undefined,
                 }));
               },
             ),

@@ -24,7 +24,26 @@ export default function useQuiz() {
     React.useContext(QuizContext);
 
   const currentQuestion = React.useMemo(() => {
-    return (questions.filter((question) => !question.isDone) || [])[0];
+    const onGoingQuestion = questions.find(
+      (question) => question.status === 'in progress',
+    );
+
+    if (onGoingQuestion) return onGoingQuestion;
+
+    return (questions
+      .sort()
+      .filter((question) => question.status === 'ready') || [])[0];
+  }, [questions]);
+  const nextQuestion = React.useMemo(() => {
+    const onGoingQuestion = questions.find(
+      (question) => question.status === 'in progress',
+    );
+
+    return (questions
+      .sort()
+      .filter((question) => question.status === 'ready') || [])[
+      onGoingQuestion ? 0 : 1
+    ];
   }, [questions]);
 
   const addQuestion = React.useCallback(
@@ -125,14 +144,16 @@ export default function useQuiz() {
 
   const updateQuiz = React.useCallback(
     async (updatedQuiz: Quiz) => {
-      delete updatedQuiz.questions;
-      delete updatedQuiz.teams;
+      // removing sub_collections to avoid storing them inside the quiz attribute in Firestore
+      const savingQuiz = { ...updatedQuiz };
+      delete savingQuiz.questions;
+      delete savingQuiz.teams;
 
       await updateDoc(
-        doc(db, 'quizzes', updatedQuiz.id).withConverter(
+        doc(db, 'quizzes', savingQuiz.id).withConverter(
           genericConverter<Quiz>(),
         ),
-        updatedQuiz,
+        savingQuiz,
       );
 
       setQuiz(updatedQuiz);
@@ -143,14 +164,69 @@ export default function useQuiz() {
     if (!quiz) return;
     updateQuiz({ ...quiz, status: 'in progress' });
   }, [quiz, updateQuiz]);
-  const reset = React.useCallback(() => {
+  const reset = React.useCallback(async () => {
     if (!quiz) return;
-    updateQuiz({ ...quiz, status: 'ready' });
-  }, [quiz, updateQuiz]);
+
+    await Promise.all(
+      (quiz.questions || []).map((question) =>
+        setDoc(
+          doc(db, 'quizzes', quiz.id, 'questions', question.id).withConverter(
+            genericConverter<Question>(),
+          ),
+          { ...question, status: 'ready' },
+        ),
+      ),
+    );
+
+    await updateQuiz({
+      ...quiz,
+      questions: (quiz.questions || []).map((_question) => ({
+        ..._question,
+        status: 'ready',
+      })),
+      status: 'ready',
+    });
+
+    setQuestions((_questions) =>
+      _questions.map((_question) => ({ ..._question, status: 'ready' })),
+    );
+  }, [quiz, setQuestions, updateQuiz]);
   const end = React.useCallback(() => {
     if (!quiz) return;
     updateQuiz({ ...quiz, status: 'finished' });
   }, [quiz, updateQuiz]);
+
+  const pushQuestion = React.useCallback(async () => {
+    if (!quiz || !currentQuestion) return;
+    const startedAt = Date.now();
+
+    await setDoc(
+      doc(
+        db,
+        'quizzes',
+        quiz.id,
+        'questions',
+        currentQuestion.id,
+      ).withConverter(genericConverter<Question>()),
+      { ...currentQuestion, status: 'in progress', startedAt },
+    );
+
+    setQuiz({
+      ...quiz,
+      questions: quiz.questions?.map((_question) =>
+        _question.id === currentQuestion.id
+          ? { ...currentQuestion, status: 'in progress', startedAt }
+          : _question,
+      ),
+    });
+    setQuestions((_questions) =>
+      _questions.map((_question) =>
+        _question.id === currentQuestion.id
+          ? { ...currentQuestion, status: 'in progress', startedAt }
+          : _question,
+      ),
+    );
+  }, [currentQuestion, quiz, setQuestions, setQuiz]);
 
   return {
     quiz,
@@ -160,6 +236,8 @@ export default function useQuiz() {
     editQuestion,
     deleteQuestion,
     currentQuestion,
+    nextQuestion,
+    pushQuestion,
     start,
     reset,
     end,

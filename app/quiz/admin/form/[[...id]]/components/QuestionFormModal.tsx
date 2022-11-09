@@ -45,7 +45,7 @@ export default function QuestionFormModal({
       ? { ...question, ...data, updatedAt: Date.now() }
       : {
           id: uid(16),
-          isDone: false,
+          status: 'ready',
           createdAt: Date.now(),
           ...data,
         };
@@ -140,7 +140,7 @@ export default function QuestionFormModal({
               Cancel
             </button>
             {isSubmitting ? (
-              <button className="loading btn-disabled btn-sm btn-square btn" />
+              <button className="btn-disabled loading btn-square btn-sm btn" />
             ) : (
               <input
                 type="submit"
