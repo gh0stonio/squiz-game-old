@@ -23,7 +23,7 @@ export interface Question {
   maxPoints: number;
   createdAt: number;
   updatedAt?: number;
-  status: 'ready' | 'in progress' | 'done';
+  status: 'ready' | 'in progress' | 'correcting' | 'done';
   startedAt?: number;
 }
 

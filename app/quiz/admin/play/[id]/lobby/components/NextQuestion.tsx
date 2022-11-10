@@ -6,7 +6,7 @@ import useQuiz from '~/quiz/admin/hooks/useQuiz';
 export default function NextQuestion() {
   const { nextQuestion } = useQuiz();
 
-  if (!nextQuestion) return <p>something wrong happened !</p>;
+  if (!nextQuestion) return null;
 
   return (
     <div>

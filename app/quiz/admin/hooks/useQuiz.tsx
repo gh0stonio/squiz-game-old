@@ -25,7 +25,8 @@ export default function useQuiz() {
 
   const currentQuestion = React.useMemo(() => {
     const onGoingQuestion = questions.find(
-      (question) => question.status === 'in progress',
+      (question) =>
+        question.status === 'in progress' || question.status === 'correcting',
     );
 
     if (onGoingQuestion) return onGoingQuestion;
@@ -35,16 +36,12 @@ export default function useQuiz() {
       .filter((question) => question.status === 'ready') || [])[0];
   }, [questions]);
   const nextQuestion = React.useMemo(() => {
-    const onGoingQuestion = questions.find(
-      (question) => question.status === 'in progress',
-    );
-
     return (questions
       .sort()
       .filter((question) => question.status === 'ready') || [])[
-      onGoingQuestion ? 0 : 1
+      currentQuestion && currentQuestion.status === 'ready' ? 1 : 0
     ];
-  }, [questions]);
+  }, [questions, currentQuestion]);
 
   const addQuestion = React.useCallback(
     (question: Question) => {
@@ -82,6 +79,10 @@ export default function useQuiz() {
         ? {
             ...quiz,
             ...values,
+            maxMembersPerTeam: parseInt(
+              values.maxMembersPerTeam.toString(),
+              10,
+            ),
             updatedAt: Date.now(),
           }
         : { ...values, id, status: 'ready', createdAt: Date.now() };
@@ -119,7 +120,11 @@ export default function useQuiz() {
                   'questions',
                   question.id,
                 ).withConverter(genericConverter<Question>()),
-                question,
+                {
+                  ...question,
+                  duration: parseInt(question.duration.toString(), 10),
+                  maxPoints: parseInt(question.maxPoints.toString(), 10),
+                },
               ),
             ),
           ),
@@ -168,33 +173,46 @@ export default function useQuiz() {
     if (!quiz) return;
 
     await Promise.all(
-      (quiz.questions || []).map((question) =>
+      (quiz.questions || []).map((question) => {
+        delete question.startedAt;
+
         setDoc(
           doc(db, 'quizzes', quiz.id, 'questions', question.id).withConverter(
             genericConverter<Question>(),
           ),
           { ...question, status: 'ready' },
-        ),
-      ),
+        );
+      }),
     );
 
-    await updateQuiz({
-      ...quiz,
-      questions: (quiz.questions || []).map((_question) => ({
-        ..._question,
-        status: 'ready',
-      })),
-      status: 'ready',
-    });
+    await updateQuiz({ ...quiz, status: 'ready' });
 
     setQuestions((_questions) =>
       _questions.map((_question) => ({ ..._question, status: 'ready' })),
     );
   }, [quiz, setQuestions, updateQuiz]);
-  const end = React.useCallback(() => {
+  const end = React.useCallback(async () => {
     if (!quiz) return;
-    updateQuiz({ ...quiz, status: 'finished' });
-  }, [quiz, updateQuiz]);
+
+    await Promise.all(
+      (quiz.questions || []).map((question) => {
+        delete question.startedAt;
+
+        setDoc(
+          doc(db, 'quizzes', quiz.id, 'questions', question.id).withConverter(
+            genericConverter<Question>(),
+          ),
+          { ...question, status: 'done' },
+        );
+      }),
+    );
+
+    await updateQuiz({ ...quiz, status: 'finished' });
+
+    setQuestions((_questions) =>
+      _questions.map((_question) => ({ ..._question, status: 'done' })),
+    );
+  }, [quiz, setQuestions, updateQuiz]);
 
   const pushQuestion = React.useCallback(async () => {
     if (!quiz || !currentQuestion) return;
@@ -228,6 +246,38 @@ export default function useQuiz() {
     );
   }, [currentQuestion, quiz, setQuestions, setQuiz]);
 
+  const sendQuestionExpired = React.useCallback(async () => {
+    if (!quiz || !currentQuestion) return;
+
+    console.log('sendQuestionExpired');
+    await setDoc(
+      doc(
+        db,
+        'quizzes',
+        quiz.id,
+        'questions',
+        currentQuestion.id,
+      ).withConverter(genericConverter<Question>()),
+      { ...currentQuestion, status: 'correcting' },
+    );
+
+    setQuiz({
+      ...quiz,
+      questions: quiz.questions?.map((_question) =>
+        _question.id === currentQuestion.id
+          ? { ...currentQuestion, status: 'correcting' }
+          : _question,
+      ),
+    });
+    setQuestions((_questions) =>
+      _questions.map((_question) =>
+        _question.id === currentQuestion.id
+          ? { ...currentQuestion, status: 'correcting' }
+          : _question,
+      ),
+    );
+  }, [currentQuestion, quiz, setQuestions, setQuiz]);
+
   return {
     quiz,
     saveQuiz,
@@ -238,6 +288,7 @@ export default function useQuiz() {
     currentQuestion,
     nextQuestion,
     pushQuestion,
+    sendQuestionExpired,
     start,
     reset,
     end,

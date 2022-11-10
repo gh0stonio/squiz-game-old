@@ -1,11 +1,13 @@
 'use client';
 import 'client-only';
-import { format } from 'date-fns';
 import { CgArrowTopRight } from 'react-icons/cg';
 import { match, P } from 'ts-pattern';
 
 import useQuiz from '~/quiz/[id]/hooks/useQuiz';
 import { useAuth } from '~/shared/context/AuthContext';
+import { Question } from '~/types';
+
+import OngoingQuestion from './OngoingQuestion';
 
 export default function MainContent() {
   const { user } = useAuth();
@@ -36,15 +38,10 @@ export default function MainContent() {
         return <p>Quiz ongoing... wait for next question</p>;
       },
     )
-    .with({ status: 'in progress' }, ({ ongoingQuestion }) => {
-      return (
-        <p>
-          Question ongoing, {ongoingQuestion?.text} -{' '}
-          {ongoingQuestion?.startedAt &&
-            format(new Date(ongoingQuestion.startedAt), 'MM/dd/yyyy hh:mm')}
-        </p>
-      );
-    })
+    .with(
+      { status: 'in progress', ongoingQuestion: P.not(P.nullish) },
+      ({ ongoingQuestion }) => <OngoingQuestion question={ongoingQuestion} />,
+    )
     .with({ status: 'finished' }, () => {
       return <p>Quiz over, thanks for your participation!</p>;
     })

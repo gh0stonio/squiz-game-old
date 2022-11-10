@@ -1,16 +1,30 @@
 'use client';
 import 'client-only';
 import clsx from 'clsx';
+import React from 'react';
+import { match } from 'ts-pattern';
 
 import useQuiz from '~/quiz/admin/hooks/useQuiz';
+import { useTimer } from '~/shared/hooks/useTimer';
+
+import Answers from './Answers';
 
 export default function CurrentQuestion() {
-  const { quiz, currentQuestion, pushQuestion } = useQuiz();
+  const { quiz, currentQuestion, pushQuestion, sendQuestionExpired } =
+    useQuiz();
+  const timer = useTimer(currentQuestion);
 
-  if (!currentQuestion) return <p>something wrong happened !</p>;
+  React.useEffect(() => {
+    timer.setIsExpired(false);
+    if (timer.isExpired) {
+      sendQuestionExpired();
+    }
+  }, [sendQuestionExpired, timer]);
+
+  if (!currentQuestion) return null;
 
   return (
-    <div>
+    <div className="flex h-full flex-col">
       <div className="flex w-full">
         <h3 className="w-full text-2xl font-bold">Current Question</h3>
         <button
@@ -46,7 +60,22 @@ export default function CurrentQuestion() {
         </div>
       </div>
 
-      <div></div>
+      {currentQuestion.status === 'in progress' && (
+        <div>Time left: {timer.timeLeft}</div>
+      )}
+
+      {match(currentQuestion)
+        .with({ status: 'in progress' }, () => {
+          return <div>Time left: {timer.timeLeft}</div>;
+        })
+        .with({ status: 'correcting' }, () => {
+          return (
+            <div className="h-full py-6">
+              <Answers />
+            </div>
+          );
+        })
+        .otherwise(() => null)}
     </div>
   );
 }
