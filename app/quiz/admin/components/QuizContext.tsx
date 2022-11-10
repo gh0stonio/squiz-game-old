@@ -57,6 +57,10 @@ export default function QuizProvider({
                 ),
               ),
               (snapshot) => {
+                console.log(
+                  'teams',
+                  snapshot.docs.map((doc) => doc.data()),
+                );
                 setQuiz({
                   ...quiz,
                   teams: snapshot.docs.map((doc) => doc.data()),
@@ -95,7 +99,7 @@ export default function QuizProvider({
     );
 
     return () => unsubs.forEach((unsub) => unsub());
-  }, []);
+  }, [quiz]);
 
   return (
     <QuizContext.Provider value={{ quiz, setQuiz, questions, setQuestions }}>
